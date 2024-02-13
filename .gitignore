@@ -5,7 +5,7 @@
 *.aab
 
 !libs/*.aar
-!TeamCode/navx-android/libs/*.aar
+!TeamCode/navx_android/libs/*.aar
 
 # Files for the ART/Dalvik VM
 *.dex
