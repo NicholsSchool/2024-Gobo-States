@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.math_utils.Point;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 /**
- * Auto for Demo-ing Spline in the judging room
+ * Path Planning Demo
  */
 @Autonomous(name="Path Planning Demo", group="Demo")
 public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants, SplineConstants {
@@ -25,14 +25,14 @@ public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants
         drivetrain.setFloat();
 
         parabolicPathPlanning = new ParabolicPathPlanning(drivetrain, IS_BLUE_ALLIANCE);
-        Point destination = new Point(72.0, 72.0);
+        Point destination = new Point(72.0, 48.0);
 
         boolean isFinished = false;
         while(opModeIsActive() && !isFinished) {
             drivetrain.drive(
                     parabolicPathPlanning.vectorToVertex(
                             drivetrain.getRobotPose().toPoint(), destination, true),
-                    0.1, false, true);
+                    0.0, true, true);
         }
     }
 }

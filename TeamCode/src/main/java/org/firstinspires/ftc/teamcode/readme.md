@@ -1,6 +1,6 @@
         CODE CHANGES:
 tune plane launching height                                     [TODO]
-More arm set heights for operator                               [TODO]
+Make more arm set heights for operator                          [TODO]
 Fix odometry                                                    [TODO]
 Test spline drivetrain pointer                                  [TODO]
 put spline back into teleop?                                    [TODO]
@@ -8,6 +8,7 @@ Improve autos (use april tags, parabolic spline)                [TODO]
 Add Potentiometer Switch for choosing l/r column in auto        [TODO]
 More honest spline distance estimate                            [TODO]
 Add Kalman filter for continuous April Tags?                    [TODO]
+If continuous April Tags, only update angle if button press     [TODO]
 Pixel Recognition?                                              [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
