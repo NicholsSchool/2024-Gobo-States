@@ -67,7 +67,7 @@ public class Vector {
      *
      * @param newMagnitude the new magnitude
      *
-     * @return this vector after the scaling
+     * @return this vector after the value scaling
      */
     public Vector scaleMagnitude(double newMagnitude) {
         double magnitude = magnitude();

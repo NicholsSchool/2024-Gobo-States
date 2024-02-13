@@ -45,7 +45,7 @@ public class Joystick {
     }
 
     /**
-     * Returns the Joystick data as a String to two decimal places
+     * Returns the Joystick data as a String to three decimal places
      *
      * @return (x, y)
      */
