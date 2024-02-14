@@ -24,7 +24,7 @@ public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants
         drivetrain = new Drivetrain(hardwareMap, 0.0, 0.0, Angles.PI_OVER_TWO);
         drivetrain.setFloat();
 
-        parabolicPathPlanning = new ParabolicPathPlanning(drivetrain, IS_BLUE_ALLIANCE);
+        parabolicPathPlanning = new ParabolicPathPlanning(drivetrain, IS_BLUE_ALLIANCE, IS_AUDIENCE);
         Point destination = new Point(72.0, 48.0);
 
         boolean isFinished = false;

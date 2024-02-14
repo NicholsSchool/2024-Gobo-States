@@ -10,6 +10,7 @@ public class ParabolicPathPlanning implements SplineConstants {
     private final Drivetrain drivetrain;
     private final double WAYPOINT_Y;
     private final Point INTAKE;
+    private final Point PURPLE_DROP;
 
     /**
      * Instantiates the Parabolic Spline
@@ -17,10 +18,12 @@ public class ParabolicPathPlanning implements SplineConstants {
      * @param drivetrain the drivetrain
      * @param isBlueAlliance whether we are blue alliance
      */
-    public ParabolicPathPlanning(Drivetrain drivetrain, boolean isBlueAlliance) {
+    public ParabolicPathPlanning(Drivetrain drivetrain, boolean isBlueAlliance, boolean isAudience) {
         this.drivetrain = drivetrain;
         WAYPOINT_Y = isBlueAlliance ? BLUE_WAYPOINT_Y : RED_WAYPOINT_Y;
         INTAKE = new Point(INTAKE_X, isBlueAlliance ? BLUE_INTAKE_Y : RED_INTAKE_Y);
+        PURPLE_DROP = new Point(isAudience ? 36.0 : -36.0, isBlueAlliance ? -36.0 : 36.0);
+
     }
 
     /**
@@ -151,7 +154,8 @@ public class ParabolicPathPlanning implements SplineConstants {
     }
 
     /**
-     * Automatically directs the robot to the X value for Launching the plane
+     * Automatically directs the robot to the Coordinates of the Correct
+     * purple pixel drop location using a single parabola
      *
      * @param turn the turn speed proportion
      * @param autoAlign whether to autoAlign
@@ -159,18 +163,12 @@ public class ParabolicPathPlanning implements SplineConstants {
      *
      * @return if we are close enough to the destination area
      */
-    public boolean splineToPlane(double turn, boolean autoAlign, boolean lowGear) {
+    public boolean splineToPurple(double turn, boolean autoAlign, boolean lowGear) {
         Point robot = drivetrain.getRobotPose().toPoint();
 
-        Vector drive;
-        if(robot.x > RIGHT_WAYPOINT_X)
-            drive = vectorToVertex(robot, new Point(RIGHT_WAYPOINT_X, CENTER_WAYPOINT_Y), false);
-        else if(robot.x > LEFT_WAYPOINT_X)
-            drive = vectorToVertex(robot, new Point(LEFT_WAYPOINT_X, CENTER_WAYPOINT_Y), false);
-        else
-            drive = robot.x >= PLANE_LAUNCHING_X ? new Vector(-1.0, 0.0) : new Vector(1.0, 0.0);
+        Vector drive = vectorToVertex(robot, PURPLE_DROP, true);
 
-        double distance = Math.abs(robot.x - PLANE_LAUNCHING_X);
+        double distance = robot.distance(PURPLE_DROP);
 
         boolean isFinished;
         if(distance >= SPLINE_ERROR) {

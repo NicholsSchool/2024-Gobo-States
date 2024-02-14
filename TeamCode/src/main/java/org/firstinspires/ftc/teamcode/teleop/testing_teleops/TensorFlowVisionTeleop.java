@@ -35,7 +35,7 @@ public class TensorFlowVisionTeleop extends OpMode {
      */
     @Override
     public void init_loop() {
-        telemetry.addData("prop location", vision.getPropPosition());
+        telemetry.addData("prop location", vision.getPropLocation());
         telemetry.addData("loop time", loopTime.time());
         loopTime.reset();
         telemetry.update();
