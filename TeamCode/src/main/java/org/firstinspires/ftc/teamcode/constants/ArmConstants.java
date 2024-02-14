@@ -48,4 +48,10 @@ public interface ArmConstants {
 
     /** Arm target position for climbing (actual position is 2100) */
     double CLIMB_POSITION = 2200.0;
+
+    /** The Arm Encoder Position offset for the auto configuration */
+    int ARM_AUTO_OFFSET = 0;
+
+    /** The Wrist Encoder Position offset for the auto configuration */
+    int WRIST_AUTO_OFFSET = 0;
 }

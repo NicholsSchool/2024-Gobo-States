@@ -51,7 +51,7 @@ public class TensorFlowVision implements VisionConstants {
      *
      * @return the Enum representing the Prop Location
      */
-    public PropLocation getPropPosition() {
+    public PropLocation getPropLocation() {
         List<Recognition> currentRecognitions = processor.getRecognitions();
 
         float bestConfidence = 0;
