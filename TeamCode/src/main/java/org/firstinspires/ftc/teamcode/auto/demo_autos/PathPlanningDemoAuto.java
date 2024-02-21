@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.constants.SplineConstants;
 import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.ParabolicPathPlanning;
 import org.firstinspires.ftc.teamcode.math_utils.Point;
+import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
 /**
@@ -31,9 +32,17 @@ public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants
         while(opModeIsActive() && !isFinished) {
             drivetrain.update();
             Point robot = drivetrain.getRobotPose().toPoint();
-            drivetrain.drive(
-                    parabolicPathPlanning.vectorToVertex(
-                            robot, destination, true), 0.0, true, true);
+            double distance = robot.distance(destination);
+
+            Vector driveVector = parabolicPathPlanning.vectorToVertex(
+                    robot, destination, true);
+
+            if(distance >= SPLINE_ERROR)
+                driveVector.scaleMagnitude(SPLINE_P * distance);
+            else
+                driveVector.zero();
+
+            drivetrain.drive(driveVector, 0.0, true, true);
         }
     }
 }
