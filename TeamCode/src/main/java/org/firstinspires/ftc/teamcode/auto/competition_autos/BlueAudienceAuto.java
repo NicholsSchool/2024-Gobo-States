@@ -22,6 +22,11 @@ public class BlueAudienceAuto extends LinearOpMode implements RobotConstants {
 
         waitForStart();
 
-        robot.closeVision();
+        robot.startAutoRoutine();
+
+        boolean isFinished = false;
+        while(opModeIsActive() && !isFinished) {
+            isFinished = robot.followPathOne();
+        }
     }
 }
