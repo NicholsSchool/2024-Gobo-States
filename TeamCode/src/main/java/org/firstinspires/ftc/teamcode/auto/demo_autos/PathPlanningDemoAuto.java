@@ -29,10 +29,11 @@ public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants
 
         boolean isFinished = false;
         while(opModeIsActive() && !isFinished) {
+            drivetrain.update();
+            Point robot = drivetrain.getRobotPose().toPoint();
             drivetrain.drive(
                     parabolicPathPlanning.vectorToVertex(
-                            drivetrain.getRobotPose().toPoint(), destination, true),
-                    0.0, true, true);
+                            robot, destination, true), 0.0, true, true);
         }
     }
 }

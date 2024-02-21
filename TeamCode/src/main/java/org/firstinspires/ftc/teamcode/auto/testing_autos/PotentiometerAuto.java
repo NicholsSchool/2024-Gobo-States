@@ -16,6 +16,7 @@ public class PotentiometerAuto extends LinearOpMode {
         while(opModeIsActive()) {
             telemetry.addData("pot current", pot.getVoltage());
             telemetry.addData("pot max", pot.getMaxVoltage());
+            telemetry.update();
         }
     }
 }

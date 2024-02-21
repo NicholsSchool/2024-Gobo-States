@@ -15,7 +15,7 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
         AutonomousRobot robot = new AutonomousRobot(hardwareMap, 36.0, 65.0,
-                Angles.NEGATIVE_PI_OVER_TWO, IS_RED_ALLIANCE, IS_AUDIENCE, telemetry);
+                Angles.NEGATIVE_PI_OVER_TWO, IS_RED_ALLIANCE, IS_AUDIENCE_SIDE, telemetry);
 
         while(opModeInInit())
             robot.updatePropLocation();

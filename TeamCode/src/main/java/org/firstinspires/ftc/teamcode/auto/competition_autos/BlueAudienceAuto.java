@@ -15,7 +15,7 @@ public class BlueAudienceAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
         AutonomousRobot robot = new AutonomousRobot(hardwareMap, 36.0, -65.0,
-                Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE, IS_AUDIENCE, telemetry);
+                Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE, IS_AUDIENCE_SIDE, telemetry);
 
         while(opModeInInit())
             robot.updatePropLocation();

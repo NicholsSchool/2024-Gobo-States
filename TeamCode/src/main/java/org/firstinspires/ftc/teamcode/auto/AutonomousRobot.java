@@ -5,10 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.constants.ArmConstants;
-import org.firstinspires.ftc.teamcode.constants.PotConstants;
-import org.firstinspires.ftc.teamcode.math_utils.ParabolicPathPlanning;
-import org.firstinspires.ftc.teamcode.math_utils.Point;
-import org.firstinspires.ftc.teamcode.subsystems.AprilTagVision;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Hand;
@@ -19,7 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.TensorFlowVision.PropLocation;
 /**
  * Robot Container for the Autonomous Period
  */
-public class AutonomousRobot implements PotConstants, ArmConstants {
+public class AutonomousRobot implements ArmConstants {
     /**
      * The two target columns for autonomous
      */
@@ -32,7 +28,6 @@ public class AutonomousRobot implements PotConstants, ArmConstants {
     private final Hand hand;
     private final Lights lights;
     private final TensorFlowVision tensorFlowVision;
-    private ParabolicPathPlanning parabolicPathPlanning;
     private final AnalogInput pot;
     private final HardwareMap hardwareMap;
     private final Telemetry telemetry;
@@ -58,7 +53,7 @@ public class AutonomousRobot implements PotConstants, ArmConstants {
         tensorFlowVision = new TensorFlowVision(hardwareMap);
 
         pot = hardwareMap.get(AnalogInput.class, "pot");
-        targetColumn = pot.getVoltage() >= THRESHOLD ? TargetColumn.LEFT : TargetColumn.RIGHT;
+        targetColumn = pot.getVoltage() >= pot.getMaxVoltage() / 2.0 ? TargetColumn.LEFT : TargetColumn.RIGHT;
 
         this.hardwareMap = hardwareMap;
         this.telemetry = telemetry;

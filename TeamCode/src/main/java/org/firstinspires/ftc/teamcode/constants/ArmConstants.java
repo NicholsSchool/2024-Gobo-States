@@ -41,7 +41,7 @@ public interface ArmConstants {
     double GROUND_POSITION = 0.0;
 
     /** Arm target position for drone launch (actual position is 920) */
-    double DRONE_POSITION = 1400.0;
+    double DRONE_POSITION = 900.0;
 
     /** Arm target position for scoring pixels (actual position is 920) */
     double SCORING_POSITION = 1100.0;
@@ -50,8 +50,8 @@ public interface ArmConstants {
     double CLIMB_POSITION = 2200.0;
 
     /** The Arm Encoder Position offset for the auto configuration */
-    int ARM_AUTO_OFFSET = 0;
+    int ARM_AUTO_OFFSET = 504;
 
     /** The Wrist Encoder Position offset for the auto configuration */
-    int WRIST_AUTO_OFFSET = 0;
+    int WRIST_AUTO_OFFSET = -4635;
 }
