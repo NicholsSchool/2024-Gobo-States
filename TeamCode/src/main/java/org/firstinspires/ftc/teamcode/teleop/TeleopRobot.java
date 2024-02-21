@@ -22,7 +22,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Lights;
 public class TeleopRobot implements ArmConstants, DrivetrainConstants {
     private final Controller driverOI;
     private final Controller operatorOI;
-    private final AprilTagVision vision;
     private final Arm arm;
     private final Drivetrain drivetrain;
     private final Hand hand;
@@ -30,7 +29,7 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
     private final double[] armSetPositions;
     private final double[] autoAlignPositions;
     private final double directionCoefficient;
-    private boolean sawAprilTag;
+    private boolean resetFieldOriented;
 
     /**
      * Instantiates the TeleopRobot
@@ -45,9 +44,8 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
      */
     public TeleopRobot(HardwareMap hwMap,
                        double x, double y, double angle, boolean isBlue, Gamepad g1, Gamepad g2) {
-        vision = new AprilTagVision(hwMap);
         arm = new Arm(hwMap, 0, 0);
-        drivetrain = new Drivetrain(hwMap, x, y, angle);
+        drivetrain = new Drivetrain(hwMap, x, y, angle, isBlue);
         hand = new Hand(hwMap);
         lights = new Lights(hwMap, isBlue);
         driverOI = new Controller(g1);
@@ -78,15 +76,7 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
         driverOI.update();
         operatorOI.update();
 
-        drivetrain.update();
-
-        RobotPose visionPose = driverOI.share.isPressed() ? vision.update() : null;
-        if(visionPose != null) {
-            drivetrain.setPose(visionPose);
-            sawAprilTag = true;
-        }
-        else
-            sawAprilTag = false;
+        drivetrain.updateHeadingOnly();
     }
 
     private void armControls() {
@@ -128,6 +118,13 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
     }
 
     private void drivetrainControls() {
+        if(driverOI.share.wasJustPressed()) {
+            resetFieldOriented = true;
+            drivetrain.resetFieldOriented();
+        }
+        else
+            resetFieldOriented = false;
+
         Vector driveVector;
         if(driverOI.dpadDown.isPressed())
             driveVector = new Vector(0.0, -VIRTUAL_LOW_GEAR);
@@ -180,7 +177,7 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
     }
 
     private void lightsControls() {
-        if(sawAprilTag)
+        if(resetFieldOriented)
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
         else
             lights.setAllianceColor();

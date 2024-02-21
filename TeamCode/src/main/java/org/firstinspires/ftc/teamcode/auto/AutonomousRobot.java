@@ -32,7 +32,6 @@ public class AutonomousRobot implements PotConstants, ArmConstants {
     private final Hand hand;
     private final Lights lights;
     private final TensorFlowVision tensorFlowVision;
-    private AprilTagVision aprilTagVision;
     private ParabolicPathPlanning parabolicPathPlanning;
     private final AnalogInput pot;
     private final HardwareMap hardwareMap;
@@ -53,8 +52,7 @@ public class AutonomousRobot implements PotConstants, ArmConstants {
                            boolean isBlue, boolean isAudience, Telemetry telemetry) {
 
         arm = new Arm(hardwareMap, ARM_AUTO_OFFSET, WRIST_AUTO_OFFSET);
-        drivetrain = new Drivetrain(hardwareMap, x, y, angle);
-        parabolicPathPlanning = new ParabolicPathPlanning(drivetrain, isBlue, isAudience);
+        drivetrain = new Drivetrain(hardwareMap, x, y, angle, isBlue);
         hand = new Hand(hardwareMap);
         lights = new Lights(hardwareMap, isBlue);
         tensorFlowVision = new TensorFlowVision(hardwareMap);
@@ -77,32 +75,13 @@ public class AutonomousRobot implements PotConstants, ArmConstants {
         telemetry.addData("Prop Location", propLocation);
     }
 
-    private void transitionVision() {
+    /**
+     * Closes the Vision Portal
+     */
+    public void closeVision() {
         tensorFlowVision.close();
-        aprilTagVision = new AprilTagVision(hardwareMap);
 
         if(propLocation == null)
             propLocation = PropLocation.CENTER;
-    }
-
-    private boolean purpleLoopSequence() {
-        arm.armToPosition();
-        arm.virtualFourbar();
-        lights.setAllianceColor();
-         return parabolicPathPlanning.splineToPurple(0.0, true, true);
-    }
-
-    /**
-     * Runs the full Autonomous Routine
-     */
-    public void runAutonomousRoutine() {
-        transitionVision();
-
-        arm.setTargetArmPosition(SCORING_POSITION);
-        drivetrain.setTargetHeading(0.0);
-
-        boolean isFinished = false;
-        while(!isFinished)
-            isFinished = purpleLoopSequence();
     }
 }

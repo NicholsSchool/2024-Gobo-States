@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.controller.Controller;
 import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.RobotPose;
@@ -18,7 +19,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
  */
 @Config
 @TeleOp(name="Odometry Tuning", group="Tuning")
-public class OdometryTuningTeleop extends OpMode {
+public class OdometryTuningTeleop extends OpMode implements RobotConstants {
     private Drivetrain drivetrain;
     private Controller controller;
     private ElapsedTime loopTime;
@@ -30,7 +31,7 @@ public class OdometryTuningTeleop extends OpMode {
     @Override
     public void init() {
         controller = new Controller(gamepad1);
-        drivetrain = new Drivetrain(hardwareMap, 0.0, 0.0, Angles.PI_OVER_TWO);
+        drivetrain = new Drivetrain(hardwareMap, 0.0, 0.0, Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE);
         loopTime = new ElapsedTime(ElapsedTime.Resolution.MILLISECONDS);
         dashboard = FtcDashboard.getInstance();
         telemetry = new MultipleTelemetry(telemetry, dashboard.getTelemetry());

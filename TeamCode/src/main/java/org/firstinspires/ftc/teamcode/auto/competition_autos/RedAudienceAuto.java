@@ -21,5 +21,7 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
             robot.updatePropLocation();
 
         waitForStart();
+
+        robot.closeVision();
     }
 }

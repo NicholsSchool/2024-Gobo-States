@@ -66,17 +66,14 @@ public class Vector {
      * unless this Vector's magnitude is 0
      *
      * @param newMagnitude the new magnitude
-     *
-     * @return this vector after the value scaling
      */
-    public Vector scaleMagnitude(double newMagnitude) {
+    public void scaleMagnitude(double newMagnitude) {
         double magnitude = magnitude();
         if(magnitude != 0) {
             double ratio = newMagnitude / magnitude;
             x *= ratio;
             y *= ratio;
         }
-        return this;
     }
 
     /**

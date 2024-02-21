@@ -43,7 +43,7 @@ public class Point {
      * The unscaled slope (explicit point - implicit point)
      *
      * @param otherPoint the explicit Point to compare to
-     * @return the slope as an (x, y) vector
+     * @return the slope as an unscaled (x, y) vector
      */
     public Vector slope(Point otherPoint) {
         return new Vector(otherPoint.x - x, otherPoint.y - y);

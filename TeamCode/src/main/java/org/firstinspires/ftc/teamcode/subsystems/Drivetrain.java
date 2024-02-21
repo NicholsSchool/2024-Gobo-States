@@ -24,6 +24,7 @@ public class Drivetrain implements DrivetrainConstants {
     private final MotionProfile turnProfile;
     private final SimpleFeedbackController turnController;
     private final RobotPose pose;
+    private final boolean isBlueAlliance;
     private double previousHeading, imuOffset, targetHeading;
     private int previousLeftPosition, previousRightPosition, previousFrontPosition;
 
@@ -34,8 +35,9 @@ public class Drivetrain implements DrivetrainConstants {
      * @param x the initial x coordinate
      * @param y the initial y coordinate
      * @param initialHeading the initial robot heading in radians
+     * @param isBlue whether we are blue alliance
      */
-    public Drivetrain(HardwareMap hwMap, double x, double y, double initialHeading) {
+    public Drivetrain(HardwareMap hwMap, double x, double y, double initialHeading, boolean isBlue) {
         this.previousHeading = initialHeading;
         this.imuOffset = initialHeading;
         this.targetHeading = initialHeading;
@@ -83,6 +85,8 @@ public class Drivetrain implements DrivetrainConstants {
         navx = AHRS.getInstance(hwMap.get(NavxMicroNavigationSensor.class,
                 "navx"), AHRS.DeviceDataType.kProcessedData);
         navx.zeroYaw();
+
+        isBlueAlliance = isBlue;
 
         driveProfile = new VectorMotionProfile(DRIVE_PROFILE_SPEED);
         turnProfile = new MotionProfile(TURN_PROFILE_SPEED, TURN_PROFILE_MAX);
@@ -147,6 +151,21 @@ public class Drivetrain implements DrivetrainConstants {
         previousLeftPosition = currentLeft;
         previousRightPosition = currentRight;
         previousFrontPosition = currentFront;
+        previousHeading = pose.angle;
+    }
+
+    /**
+     * Updates Robot Heading using the NavX
+     */
+    public void updateHeadingOnly() {
+        pose.angle = imuOffset + getCorrectedYaw();
+        previousHeading = pose.angle;
+    }
+
+    public void resetFieldOriented() {
+        double yaw = getCorrectedYaw();
+        imuOffset = (isBlueAlliance ? Angles.PI_OVER_TWO : Angles.NEGATIVE_PI_OVER_TWO) - yaw;
+        pose.angle = imuOffset + yaw;
         previousHeading = pose.angle;
     }
 
