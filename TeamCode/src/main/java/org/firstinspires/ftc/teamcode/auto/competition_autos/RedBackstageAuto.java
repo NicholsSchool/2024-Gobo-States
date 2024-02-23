@@ -8,14 +8,14 @@ import org.firstinspires.ftc.teamcode.constants.RobotConstants;
 import org.firstinspires.ftc.teamcode.math_utils.Angles;
 
 /**
- * Blue Audience Side Competition Autonomous
+ * Red Backstage Side Competition Autonomous
  */
-@Autonomous(name="Blue Audience", group="Competition")
-public class BlueAudienceAuto extends LinearOpMode implements RobotConstants {
+@Autonomous(name="Red Backstage", group="Competition")
+public class RedBackstageAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
-        AutonomousRobot robot = new AutonomousRobot(hardwareMap, 36.0, -65.0,
-                Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE, IS_AUDIENCE_SIDE, telemetry);
+        AutonomousRobot robot = new AutonomousRobot(hardwareMap, -36.0, 65.0,
+                Angles.NEGATIVE_PI_OVER_TWO, IS_RED_ALLIANCE, IS_BACKSTAGE_SIDE, telemetry);
 
         while(opModeInInit())
             robot.updatePropLocation();

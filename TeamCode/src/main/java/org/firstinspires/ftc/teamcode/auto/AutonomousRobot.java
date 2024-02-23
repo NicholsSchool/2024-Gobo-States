@@ -8,6 +8,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.constants.ArmConstants;
 import org.firstinspires.ftc.teamcode.constants.SplineConstants;
 import org.firstinspires.ftc.teamcode.math_utils.BezierPathPlanning;
+import org.firstinspires.ftc.teamcode.math_utils.CubicBezierPath;
 import org.firstinspires.ftc.teamcode.math_utils.Point;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
@@ -32,9 +33,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     private final Hand hand;
     private final Lights lights;
     private final TensorFlowVision tensorFlowVision;
-    private final AnalogInput pot;
-    private final HardwareMap hardwareMap;
-    private final BezierPathPlanning splineOne;
+    private final BezierPathPlanning bezierPathPlanning;
     private final Telemetry telemetry;
     private final TargetColumn targetColumn;
     private PropLocation propLocation;
@@ -58,29 +57,46 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
         tensorFlowVision = new TensorFlowVision(hardwareMap);
 
-        pot = hardwareMap.get(AnalogInput.class, "pot");
+        AnalogInput pot = hardwareMap.get(AnalogInput.class, "pot");
         targetColumn = pot.getVoltage() > pot.getMaxVoltage() * 0.5 ? TargetColumn.LEFT : TargetColumn.RIGHT;
-
-        this.hardwareMap = hardwareMap;
+        
         this.telemetry = telemetry;
 
+        
+        
+        //TODO: test that the new Bezier Spline class works in a new testing auto
+        
+        //Here are two example paths that are determined by our starting side in auto and our alliance color
+        //TODO: make all the real paths for both audience and backstage side
+        CubicBezierPath exampleOne = isAudience ?
+                new CubicBezierPath(new Point(0, 0), new Point(1, 1),
+                                    new Point(2, 2), new Point(3, 3)) :
+                new CubicBezierPath(new Point(69, 69), new Point(70, 70),
+                                    new Point(71, 71), new Point(72, 72));
 
-
-        //TODO: real point arrays for real paths, and several for the whole auto
-        //example point arrays for bezier based off isAudience, just switch with the real points
-        Point[] splineOnePoints = isAudience ?
-                new Point[]{new Point(0, 0), new Point(1, 1)} :
-                new Point[]{new Point(10, 10), new Point(11, 11)};
-
-        //TODO: tune correction distance and steps in SplineConstants
-        //TODO: test that the new Bezier Spline class works in a testing auto
-        splineOne = new BezierPathPlanning(drivetrain, splineOnePoints, CORRECTION_DISTANCE, STEPS);
+        CubicBezierPath exampleTwo = isAudience ?
+                new CubicBezierPath(new Point(-10, -10), new Point(-11, -11),
+                        new Point(-12, -12), new Point(-13, -13)) :
+                new CubicBezierPath(new Point(0, 1), new Point(2, 3),
+                        new Point(4, 5), new Point(6, 7));
 
         if(!isBlue) {
-            for(Point point : splineOnePoints) {
-                point.y *= -1; //mirrors y value for red alliance
-            }
+            //flips the y values if we are red
+            exampleOne.one.y *= -1;
+            exampleOne.two.y *= -1;
+            exampleOne.three.y *= -1;
+            exampleOne.four.y *= -1;
+
+            exampleTwo.one.y *= -1;
+            exampleTwo.two.y *= -1;
+            exampleTwo.three.y *= -1;
+            exampleTwo.four.y *= -1;
         }
+
+        //TODO: tune correction distance and number of steps in SplineConstants
+        bezierPathPlanning = new BezierPathPlanning(drivetrain,
+                new CubicBezierPath[]{exampleOne, exampleTwo}, //Puts all the paths into BezierPathPlanning
+                CORRECTION_DISTANCE, STEPS);
     }
 
     /**
@@ -97,21 +113,55 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     /**
      * Closes the Vision Portal
      */
-    public void startAutoRoutine() {
+    public void closeVision() {
         tensorFlowVision.close();
 
         if(propLocation == null)
             propLocation = PropLocation.CENTER;
+    }
 
+
+
+    //Here are demo methods for preparing and executing each step of the auto
+    //See how they are used in the actual Auto classes
+    //TODO: make methods for all parts of the auto using this structure
+
+    /**
+     * Prepares the robot to follow path one
+     */
+    public void prepForPathOne() {
         arm.setTargetArmPosition(1400.0);
         lights.setAllianceColor();
     }
 
-    //DEMO method to base real ones off of
-    //TODO: make real paths and methods using this structure
+    /**
+     * Follows path one while moving the arm and wrist
+     *
+     * @return whether we have reached the path's destination
+     */
     public boolean followPathOne() {
         arm.armToPosition();
         arm.virtualFourbar();
-        return splineOne.spline(0.0, true, true);
+        return bezierPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to follow path two
+     */
+    public void prepForPathTwo() {
+        arm.setTargetArmPosition(0.0);
+        lights.setAllianceColor();
+        bezierPathPlanning.loadNextPath();
+    }
+
+    /**
+     * Follows path two while moving the arm and wrist
+     *
+     * @return whether we have reached the path's destination
+     */
+    public boolean followPathTwo() {
+        arm.armToPosition();
+        arm.virtualFourbar();
+        return bezierPathPlanning.spline(0.0, true, true);
     }
 }

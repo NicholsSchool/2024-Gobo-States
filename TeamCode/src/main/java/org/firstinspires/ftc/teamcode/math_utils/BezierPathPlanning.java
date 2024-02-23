@@ -12,7 +12,9 @@ import java.util.stream.DoubleStream;
  */
 public class BezierPathPlanning implements SplineConstants {
     private final Drivetrain drivetrain;
-    private final Point[] points;
+    private final CubicBezierPath[] bezierPaths;
+    private CubicBezierPath currentPath;
+    private int pathIndex;
     private final double correctionDistance;
     private final int steps;
     private Point robotPosition;
@@ -21,26 +23,38 @@ public class BezierPathPlanning implements SplineConstants {
      * Instantiates the BezierSpline
      *
      * @param drivetrain the drivetrain
-     * @param points the waypoints
+     * @param paths the array of bezier paths to be used
      * @param correctionDistance the distance threshold for correction
      * @param steps the number of distance samples to take
      */
-    public BezierPathPlanning(Drivetrain drivetrain, Point[] points, double correctionDistance, int steps) {
+    public BezierPathPlanning(
+            Drivetrain drivetrain, CubicBezierPath[] paths, double correctionDistance, int steps) {
         this.drivetrain = drivetrain;
-        this.points = points;
+        bezierPaths = paths;
+        currentPath = bezierPaths[pathIndex];
         this.correctionDistance = correctionDistance;
         this.steps = steps;
         robotPosition = drivetrain.getRobotPose().toPoint();
     }
 
+    /**
+     * Switches the current path to the next one
+     * if there is another
+     */
+    public void loadNextPath() {
+        pathIndex++;
+        if(pathIndex < bezierPaths.length)
+            currentPath = bezierPaths[pathIndex];
+    }
+
     private double bezierX(double t) {
-        return Math.pow(1 - t, 3) * points[0].x + 3 * t * Math.pow(1 - t, 2) * points[1].x +
-                3 * Math.pow(t, 2) * (1 - t) * points[2].x + Math.pow(t, 3) * points[3].x;
+        return Math.pow(1 - t, 3) * currentPath.one.x + 3 * t * Math.pow(1 - t, 2) * currentPath.two.x +
+                3 * Math.pow(t, 2) * (1 - t) * currentPath.three.x + Math.pow(t, 3) * currentPath.four.x;
     }
 
     private double bezierY(double t) {
-        return Math.pow(1 - t, 3) * points[0].y + 3 * t * Math.pow(1 - t, 2) * points[1].y +
-                3 * Math.pow(t, 2) * (1 - t) * points[2].y + Math.pow(t, 3) * points[3].y;
+        return Math.pow(1 - t, 3) * currentPath.one.y + 3 * t * Math.pow(1 - t, 2) * currentPath.two.y +
+                3 * Math.pow(t, 2) * (1 - t) * currentPath.three.y + Math.pow(t, 3) * currentPath.four.y;
     }
 
     private Vector tangentVector(double t) {
@@ -49,12 +63,12 @@ public class BezierPathPlanning implements SplineConstants {
         double thirdCoefficient = Math.pow(t, 2);
 
         Vector tangentVector = new Vector(
-                firstCoefficient * (points[1].x - points[0].x) +
-                        secondCoefficient * (points[2].x - points[1].x) +
-                        thirdCoefficient * points[3].x - points[2].x,
-                firstCoefficient * (points[1].y - points[0].y) +
-                        secondCoefficient * (points[2].y - points[1].y) +
-                        thirdCoefficient * points[3].y - points[2].y);
+                firstCoefficient * (currentPath.two.x - currentPath.one.x) +
+                        secondCoefficient * (currentPath.three.x - currentPath.two.x) +
+                        thirdCoefficient * currentPath.four.x - currentPath.three.x,
+                firstCoefficient * (currentPath.two.y - currentPath.one.y) +
+                        secondCoefficient * (currentPath.three.y - currentPath.two.y) +
+                        thirdCoefficient * currentPath.four.y - currentPath.three.y);
 
         tangentVector.scaleMagnitude(1.0);
         return tangentVector;
@@ -95,11 +109,11 @@ public class BezierPathPlanning implements SplineConstants {
     public boolean spline(double turn, boolean autoAlign, boolean lowGear) {
         robotPosition = drivetrain.getRobotPose().toPoint();
 
-        double error = robotPosition.distance(points[3]);
+        double error = robotPosition.distance(currentPath.four);
 
         Vector drive;
         if(error <= correctionDistance) {
-            drive = robotPosition.slope(points[3]);
+            drive = robotPosition.slope(currentPath.four);
         }
         else {
             double desiredT = desiredT();
