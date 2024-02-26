@@ -109,9 +109,14 @@ public class TeleopRobot implements ArmConstants, DrivetrainConstants {
         if(operatorOI.x.wasJustPressed())
             arm.setTargetWristPosition(-50.0);
 
-        if(operatorOI.x.isPressed())
+        if(operatorOI.triangle.wasJustPressed())
+            arm.setTargetWristPosition(1400);
+
+        if(operatorOI.x.isPressed() || operatorOI.triangle.isPressed())
             arm.wristToPosition();
-        else if(operatorOI.rightStick.y.hasBeenZero())
+        else if(operatorOI.rightStick.y.hasBeenZero() &&
+                !operatorOI.square.isPressed() &&
+                !operatorOI.circle.isPressed())
             arm.virtualFourbar();
         else
             arm.wristManual(operatorOI.rightStick.y.value());

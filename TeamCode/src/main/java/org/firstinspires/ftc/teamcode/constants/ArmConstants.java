@@ -29,7 +29,7 @@ public interface ArmConstants {
     double WRIST_P = 0.001;
 
     /** Wrist intaking virtual fourbar position */
-    double WRIST_INTAKING = 110.0;
+    double WRIST_INTAKING = 180.0;
 
     /** Wrist scoring virtual fourbar position */
     double WRIST_SCORING = 1450.0;
