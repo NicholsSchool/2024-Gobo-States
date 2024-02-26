@@ -107,6 +107,7 @@ public class BezierPathPlanning implements SplineConstants {
      * @return if we are close enough to the destination area
      */
     public boolean spline(double turn, boolean autoAlign, boolean lowGear) {
+        drivetrain.update();
         robotPosition = drivetrain.getRobotPose().toPoint();
 
         double error = robotPosition.distance(currentPath.four);

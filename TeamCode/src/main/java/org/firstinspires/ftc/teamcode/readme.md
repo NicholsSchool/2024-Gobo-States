@@ -1,6 +1,5 @@
         CODE CHANGES:
-Add Good Bezier Spline                                          [TODO]
-Tune spline stuff                                               [TODO]
+Test and Tune spline stuff                                      [TODO]
 Make autos                                                      [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
