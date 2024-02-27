@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.math_utils.Angles;
 public class BlueBackstageAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
-        AutonomousRobot robot = new AutonomousRobot(hardwareMap, -36.0, -65.0,
+        AutonomousRobot robot = new AutonomousRobot(hardwareMap, -36.0, -63.0,
                 Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE, IS_BACKSTAGE_SIDE, telemetry);
 
         while(opModeInInit())
@@ -28,10 +28,5 @@ public class BlueBackstageAuto extends LinearOpMode implements RobotConstants {
         boolean pathOneIsFinished = false;
         while(opModeIsActive() && !pathOneIsFinished)
             pathOneIsFinished = robot.followPathOne();
-
-        robot.prepForPathTwo();
-        boolean pathTwoIsFinished = false;
-        while(opModeIsActive() && !pathTwoIsFinished)
-            pathTwoIsFinished = robot.followPathTwo();
     }
 }

@@ -1,5 +1,5 @@
         CODE CHANGES:
-Test and Tune spline stuff                                      [TODO]
+Test and Tune the new lerp spline                               [TODO]
 Make autos                                                      [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
@@ -13,7 +13,7 @@ Fully Test PointMotionProfile           [FINISHED]
 Fully Test SimpleFeedbackController     [FINISHED]
 Fully Test FeedbackController           [FINISHED]
 Fully Test ParabolicPathPlanning        [FINISHED]
-Fully Test BezierPathPlanning           [TODO]
+Fully Test LerpPathPlanning             [FINISHED]
 Fully Test Hand                         [FINISHED]
 Fully Test Lights                       [FINISHED]
 Fully Test AprilTagVision               [FINISHED]
@@ -49,8 +49,8 @@ DrivetrainConstants - Tune odometry corrections [FINISHED]
 
 HandConstants - tune all Grabber ranges         [FINISHED]
 
-SplineConstants - Tune Spline P                 [TODO]
-SplineConstants - Tune Spline error             [TODO]
+SplineConstants - Tune Spline P                 [FINISHED]
+SplineConstants - Tune Spline error             [FINISHED]
 
 VisionConstants - tune camera offsets           [FINISHED]
 VisionConstants - tune both thresholds          [FINISHED]

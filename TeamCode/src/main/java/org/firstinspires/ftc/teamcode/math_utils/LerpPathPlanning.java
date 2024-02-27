@@ -9,70 +9,68 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 public class LerpPathPlanning implements SplineConstants {
     private final Drivetrain drivetrain;
     private Point robotPosition;
-    private final Point waypoint;
-    private final double slope;
-    private double c1;
-    private double c2;
-    private double v2;
-    private double v1;
-
+    private final LerpPath[] paths;
+    private LerpPath currentPath;
+    private int index;
 
     /**
      * Instantiates the LerpPathPlanning
      *
      * @param drivetrain the drivetrain
-     * @param waypoint desired endpoint
-     * @param angle angle to be tangent with at the end
+     * @param paths all the paths we will follow
      */
-    public LerpPathPlanning(Drivetrain drivetrain, Point waypoint, double angle) {
+    public LerpPathPlanning(Drivetrain drivetrain, LerpPath[] paths) {
         this.drivetrain = drivetrain;
-        this.waypoint = waypoint;
-
-        double angleMod = Math.abs(angle) == Angles.PI_OVER_TWO ? 0.0001 : 0;
-
-        slope = Math.tan(angle + angleMod);
-
-        Point slopePoint = new Point(
-                waypoint.x + Math.cos(angle + angleMod),
-                waypoint.y + Math.sin(angle + angleMod));
-
-        c1 = waypoint.x;
-        v1 = waypoint.y;
-        c2 = slopePoint.x;
-        v2 = slopePoint.y;
+        this.paths = paths;
+        this.currentPath = paths[0];
     }
 
-    // used to make the line the bot is projected on, tangent to end angle
-    private double lineProjection(double x){
-        return slope * (x - waypoint.x) + waypoint.y;
-    }
-
-    //closest x value
-    private double optimalX(){
-        return (c2 * Math.pow(v1, 2) + (robotPosition.y * (c1 - c2) - (c1 + c2) * v2) * v1 - robotPosition.y * (c1 - c2) * v2 + robotPosition.x * Math.pow(c1 - c2, 2)
-                + c1 * Math.pow(v2 , 2)) / (Math.pow(v1, 2) - 2 * v2 * v1 + Math.pow(c1 , 2) - 2 * c1 * c2 + Math.pow(c2, 2) + Math.pow(v2 , 2));
-    }
-
-    //distance from optimal x on the line to waypoint
-    private double distanceOnLine(){
-        return Math.sqrt(Math.pow(c1 - optimalX(), 2) + Math.pow(v1 - lineProjection(optimalX()), 2));
-    }
-
-    //how far the bot is from the tangent line
-    private double fromLine(){
-        return Math.hypot(robotPosition.x - optimalX(), robotPosition.y - lineProjection(optimalX()));
+    /**
+     * Loads the next path to follow
+     */
+    public void loadNextPath() {
+        index++;
+        if(index < paths.length)
+            currentPath = paths[index];
     }
 
 
-    //desiredT for point it's correcting to
+    private double lineProjection(double x) {
+        return currentPath.slope * (x - currentPath.waypoint.x) + currentPath.waypoint.y;
+    }
+
+    private double optimalX() {
+        return (robotPosition.x / currentPath.slope +
+                currentPath.waypoint.x * currentPath.slope
+                + robotPosition.y - currentPath.waypoint.y) /
+                (currentPath.slope + 1.0 / currentPath.slope);
+    }
+
+    private double distanceOnLine() {
+        double optimalX = optimalX();
+        return Math.hypot(
+                currentPath.waypoint.x - optimalX, currentPath.waypoint.y - lineProjection(optimalX));
+    }
+
+    private double fromLine() {
+        double optimalX = optimalX();
+        return Math.hypot(robotPosition.x - optimalX, robotPosition.y - lineProjection(optimalX));
+    }
+
     private double desiredT(){
-        return 1 - fromLine() / distanceOnLine();
+        return 1.0 - fromLine() / distanceOnLine();
     }
 
-    //distance from projected point on the line to the waypoint
     private double projectedDistance(){
-        return Math.sqrt(Math.pow(desiredT() * (c1 - optimalX()) + optimalX() - c1, 2)
-                + Math.pow(desiredT() * (v1 - lineProjection(optimalX())) + lineProjection(optimalX()) - v1, 2));
+        double optimalX = optimalX();
+        double optimalY = lineProjection(optimalX);
+        double desiredT = desiredT();
+
+        return Math.hypot(
+                desiredT * (currentPath.waypoint.x - optimalX) +
+                        optimalX - currentPath.waypoint.x,
+                desiredT * (currentPath.waypoint.y - optimalY) +
+                        optimalY - currentPath.waypoint.y);
     }
 
     /**
@@ -89,20 +87,22 @@ public class LerpPathPlanning implements SplineConstants {
         drivetrain.update();
         robotPosition = drivetrain.getRobotPose().toPoint();
 
-        double error = robotPosition.distance(waypoint);
-        double vx;
-        double vy;
+        double error = robotPosition.distance(currentPath.waypoint);
 
-        //makes sure it doesn't move away from the point, goes normal in this case
+        Vector driveVector;
         if(distanceOnLine() > projectedDistance()) {
-            vx = desiredT() * (c1 - optimalX()) + optimalX() - robotPosition.x;
-            vy = desiredT() * (v1 - lineProjection(optimalX())) + lineProjection(optimalX()) - robotPosition.y;
+            double optimalX = optimalX();
+            double optimalY = lineProjection(optimalX);
+            double desiredT = desiredT();
+
+            driveVector = new Vector(
+                    desiredT * (currentPath.waypoint.x - optimalX) + optimalX - robotPosition.x,
+                    desiredT * (currentPath.waypoint.y - optimalY) + optimalY - robotPosition.y);
         }
         else {
-            vx = optimalX() - robotPosition.x;
-            vy = lineProjection(optimalX()) - robotPosition.y;
+            driveVector = new Vector(
+                    optimalX() - robotPosition.x, lineProjection(optimalX()) - robotPosition.y);
         }
-        Vector driveVector =  new Vector(vx, vy);
 
         boolean isFinished;
         if(error >= SPLINE_ERROR) {

@@ -53,8 +53,8 @@ public interface DrivetrainConstants {
     double INCHES_PER_TICK = DEAD_WHEEL_DIAMETER * Math.PI / THRU_BORE_TICKS_PER_REV;
 
     /** Horizontal Correction coefficient */
-    double STRAFE_ODOMETRY_CORRECTION = 125.0 / 229.0;
+    double STRAFE_ODOMETRY_CORRECTION = 0.553336722097;
 
     /** Forward Correction coefficient */
-    double FORWARD_ODOMETRY_CORRECTION = 125.0 / 133.0;
+    double FORWARD_ODOMETRY_CORRECTION = 0.942379475317;
 }

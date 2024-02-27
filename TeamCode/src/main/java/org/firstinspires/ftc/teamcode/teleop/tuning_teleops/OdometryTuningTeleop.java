@@ -60,12 +60,11 @@ public class OdometryTuningTeleop extends OpMode implements RobotConstants {
         controller.update();
         drivetrain.update();
 
-        if(controller.leftTrigger.value() >= 0.5)
-            drivetrain.drive(new Vector(0.0, controller.leftStick.y.value() * 0.5)
-                    , 0.0, true, true);
-        else
-            drivetrain.drive(new Vector(controller.leftStick.x.value() * 0.5, 0.0)
-                    , 0.0, true, true);
+        Vector driveVector = controller.leftStick.toVector();
+        driveVector.x *= 0.2;
+        driveVector.y *= 0.2;
+
+        drivetrain.drive(driveVector, 0.0, true, true);
 
         RobotPose pose = drivetrain.getRobotPose();
         telemetry.addData("x", pose.x);
