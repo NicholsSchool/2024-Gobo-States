@@ -32,7 +32,7 @@ public interface ArmConstants {
     double WRIST_INTAKING = 180.0;
 
     /** Wrist scoring virtual fourbar position */
-    double WRIST_SCORING = 1450.0;
+    double WRIST_SCORING = 1500.0;
 
     /** Arm position to switch the wrist virtual fourbar position at */
     double FOURBAR_SWITCHING_POSITION = 300;
@@ -50,8 +50,8 @@ public interface ArmConstants {
     double CLIMB_POSITION = 2200.0;
 
     /** The Arm Encoder Position offset for the auto configuration */
-    int ARM_AUTO_OFFSET = 504;
+    int ARM_AUTO_OFFSET = -504;
 
     /** The Wrist Encoder Position offset for the auto configuration */
-    int WRIST_AUTO_OFFSET = -4635;
+    int WRIST_AUTO_OFFSET = 4635;
 }

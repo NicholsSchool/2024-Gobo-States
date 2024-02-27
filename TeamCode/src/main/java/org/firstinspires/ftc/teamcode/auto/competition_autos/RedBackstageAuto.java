@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.math_utils.Angles;
 public class RedBackstageAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
-        AutonomousRobot robot = new AutonomousRobot(hardwareMap, -36.0, 63.0,
+        AutonomousRobot robot = new AutonomousRobot(hardwareMap, -12.0, 63.0,
                 Angles.NEGATIVE_PI_OVER_TWO, IS_RED_ALLIANCE, IS_BACKSTAGE_SIDE, telemetry);
 
         while(opModeInInit())

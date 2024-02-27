@@ -54,7 +54,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         Drivetrain drivetrain = new Drivetrain(hardwareMap, x, y, angle, isBlue);
         hand = new Hand(hardwareMap);
         lights = new Lights(hardwareMap, isBlue);
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
         tensorFlowVision = new TensorFlowVision(hardwareMap);
 
         AnalogInput pot = hardwareMap.get(AnalogInput.class, "pot");
@@ -63,23 +63,22 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         
         this.telemetry = telemetry;
 
-        LerpPath exampleOne = isAudience ?
-                new LerpPath(new Point(0, 0), Math.PI) :
-                new LerpPath(new Point(10, 10), Angles.NEGATIVE_PI_OVER_TWO);
+        LerpPath pathOne = isAudience ?
+                new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(-12.0, -36.0), Angles.PI_OVER_TWO);
 
         if(!isBlue) {
-            exampleOne.waypoint.y *= -1.0;
-            exampleOne.angle *= -1.0;
+            pathOne.waypoint.y *= -1.0;
+            pathOne.angle *= -1.0;
 
-            exampleOne.slope = Math.tan(angle);
+            pathOne.slope = Math.tan(angle);
 
-            exampleOne.slopePoint = new Point(
-                    exampleOne.waypoint.x + Math.cos(angle),
-                    exampleOne.waypoint.y + Math.sin(angle));
+            pathOne.slopePoint = new Point(
+                    pathOne.waypoint.x + Math.cos(angle),
+                    pathOne.waypoint.y + Math.sin(angle));
         }
 
-        lerpPathPlanning = new LerpPathPlanning(
-                drivetrain, new LerpPath[]{exampleOne});
+        lerpPathPlanning = new LerpPathPlanning(drivetrain, new LerpPath[]{pathOne});
     }
 
     /**
@@ -91,6 +90,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         if(currentLocation != null)
             propLocation = currentLocation;
         telemetry.addData("Prop Location", propLocation);
+        telemetry.update();
     }
 
     /**
@@ -108,7 +108,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public void prepForPathOne() {
         arm.setTargetArmPosition(1400.0);
-        lights.setAllianceColor();
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
     }
 
     /**

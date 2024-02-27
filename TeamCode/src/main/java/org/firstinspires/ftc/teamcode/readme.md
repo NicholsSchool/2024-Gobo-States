@@ -1,5 +1,5 @@
         CODE CHANGES:
-Test and Tune the new lerp spline                               [TODO]
+Test and Tune the new lerp spline                               [IN PROGRESS]
 Make autos                                                      [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:

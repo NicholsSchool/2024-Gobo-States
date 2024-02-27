@@ -21,13 +21,11 @@ public class LerpAuto extends LinearOpMode implements RobotConstants {
     @Override
     public void runOpMode() {
         Drivetrain drivetrain = new Drivetrain(
-                hardwareMap, 0, 0, Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE);
+                hardwareMap, 0.0, 0.0, Angles.PI_OVER_TWO, IS_BLUE_ALLIANCE);
         drivetrain.setFloat();
-
         LerpPathPlanning spline = new LerpPathPlanning(
-                drivetrain, new LerpPath[]{new LerpPath(new Point(48.0, 24.0),
-                Angles.PI_OVER_TWO)});
-
+                drivetrain, new LerpPath[]{
+                        new LerpPath(new Point(48.0, 24.0), Angles.PI_OVER_TWO)});
         Lights lights = new Lights(hardwareMap, IS_BLUE_ALLIANCE);
 
         waitForStart();
@@ -35,7 +33,7 @@ public class LerpAuto extends LinearOpMode implements RobotConstants {
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
 
         boolean isFinished = false;
-        while (opModeIsActive() && !isFinished) {
+        while(opModeIsActive() && !isFinished) {
             isFinished = spline.spline(0.0, true, true);
         }
     }
