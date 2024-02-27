@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
  */
 public class LerpPathPlanning implements SplineConstants {
     private final Drivetrain drivetrain;
+    private final Point finalDestination;
     private Point robotPosition;
     private final LerpPath[] paths;
     private LerpPath currentPath;
@@ -18,9 +19,11 @@ public class LerpPathPlanning implements SplineConstants {
      *
      * @param drivetrain the drivetrain
      * @param paths all the paths we will follow
+     * @param finalDestination the final destination
      */
-    public LerpPathPlanning(Drivetrain drivetrain, LerpPath[] paths) {
+    public LerpPathPlanning(Drivetrain drivetrain, LerpPath[] paths, Point finalDestination) {
         this.drivetrain = drivetrain;
+        this.finalDestination = finalDestination;
         this.paths = paths;
         this.currentPath = paths[0];
     }
@@ -87,7 +90,7 @@ public class LerpPathPlanning implements SplineConstants {
         drivetrain.update();
         robotPosition = drivetrain.getRobotPose().toPoint();
 
-        double error = robotPosition.distance(currentPath.waypoint);
+        double error = robotPosition.distance(finalDestination);
 
         Vector driveVector;
         if(distanceOnLine() > projectedDistance()) {

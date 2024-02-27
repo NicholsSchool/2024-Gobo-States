@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.auto;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.constants.ArmConstants;
@@ -29,6 +30,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         LEFT, RIGHT
     }
 
+    private final ElapsedTime timer;
+    private final Drivetrain drivetrain;
     private final Arm arm;
     private final Hand hand;
     private final Lights lights;
@@ -50,11 +53,16 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     public AutonomousRobot(HardwareMap hardwareMap, double x, double y, double angle,
                            boolean isBlue, boolean isAudience, Telemetry telemetry) {
 
+        //TODO: pot and purple location decide SCORING_Y
+        final double SCORING_Y = -36.0;
+
+        timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
+
         arm = new Arm(hardwareMap, ARM_AUTO_OFFSET, WRIST_AUTO_OFFSET);
-        Drivetrain drivetrain = new Drivetrain(hardwareMap, x, y, angle, isBlue);
+        drivetrain = new Drivetrain(hardwareMap, x, y, angle, isBlue);
         hand = new Hand(hardwareMap);
         lights = new Lights(hardwareMap, isBlue);
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+        lights.setAllianceColor();
         tensorFlowVision = new TensorFlowVision(hardwareMap);
 
         AnalogInput pot = hardwareMap.get(AnalogInput.class, "pot");
@@ -67,18 +75,42 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
                 new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
                 new LerpPath(new Point(-12.0, -36.0), Angles.PI_OVER_TWO);
 
+        LerpPath pathTwo = isAudience ?
+                new LerpPath(new Point(48.0, -48.0), 0.0) :
+                new LerpPath(new Point(-28.0, -53.0), 0.0);
+        LerpPath pathThree = isAudience ?
+                new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(-48, SCORING_Y), Angles.PI_OVER_TWO);
+
+        LerpPath pathFour = isAudience ?
+                new LerpPath(new Point(46.0, -11), -Math.PI / 4.0 + 0.35) :
+                new LerpPath(new Point(0.0, 0.0), 0.0);
+
+        LerpPath pathFive = isAudience ?
+                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(0.0, 0.0), 0.0);
+
         if(!isBlue) {
-            pathOne.waypoint.y *= -1.0;
-            pathOne.angle *= -1.0;
-
-            pathOne.slope = Math.tan(angle);
-
-            pathOne.slopePoint = new Point(
-                    pathOne.waypoint.x + Math.cos(angle),
-                    pathOne.waypoint.y + Math.sin(angle));
+            flipRed(pathOne);
+            flipRed(pathTwo);
+            flipRed(pathThree);
+            flipRed(pathFour);
+            flipRed(pathFive);
         }
 
-        lerpPathPlanning = new LerpPathPlanning(drivetrain, new LerpPath[]{pathOne});
+        lerpPathPlanning = new LerpPathPlanning(drivetrain, new LerpPath[]{
+                pathOne, pathTwo, pathThree, pathFour, pathFive}, new Point(-48.0, SCORING_Y));
+    }
+
+    private void flipRed(LerpPath path) {
+        path.waypoint.y *= -1.0;
+        path.angle *= -1.0;
+
+        path.slope = Math.tan(path.angle);
+
+        path.slopePoint = new Point(
+                path.waypoint.x + Math.cos(path.angle),
+                path.waypoint.y + Math.sin(path.angle));
     }
 
     /**
@@ -108,7 +140,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public void prepForPathOne() {
         arm.setTargetArmPosition(1400.0);
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
+        timer.reset();
     }
 
     /**
@@ -118,7 +151,103 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathOne() {
         arm.armToPosition();
-        arm.virtualFourbar();
+        if(timer.time() > 0.5)
+            arm.virtualFourbar();
         return lerpPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to drop the purple pixel
+     */
+    public void prepForPurplePixelDrop() {
+
+    }
+
+    /**
+     * Drops the purple pixel on the correct line
+     *
+     * @return whether we are finished dropping the pixel
+     */
+    public boolean dropPurplePixel() {
+        return true;
+    }
+
+    /**
+     * Prepares the robot to follow the second auto path
+     */
+    public void prepForPathTwo() {
+        lerpPathPlanning.loadNextPath();
+        arm.setTargetWristPosition(1400);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
+    }
+
+    /**
+     * Follows path two while moving the arm and wrist appropriately
+     *
+     * @return whether we have reached the path's destination
+     */
+    public boolean followPathTwo() {
+        arm.armToPosition();
+        arm.wristToPosition();
+        return lerpPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to follow the third auto path
+     */
+    public void prepForPathThree() {
+        lerpPathPlanning.loadNextPath();
+    }
+
+    /**
+     * Follows path three while moving the arm and wrist appropriately
+     *
+     * @return whether we have reached the path's destination
+     */
+    public boolean followPathThree() {
+        arm.armToPosition();
+        arm.wristToPosition();
+        return lerpPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to follow the fourth auto path
+     */
+    public void prepForPathFour() {
+        lerpPathPlanning.loadNextPath();
+    }
+
+    /**
+     * Follows path four while moving the arm and wrist appropriately
+     *
+     * @return whether we have reached the path's destination
+     */
+    public boolean followPathFour() {
+        arm.armToPosition();
+        arm.wristToPosition();
+        return lerpPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to follow the fifth auto path
+     */
+    public void prepForPathFive() {
+        lerpPathPlanning.loadNextPath();
+        drivetrain.setTargetHeading(0.0);
+    }
+
+    /**
+     * Follows path five while moving the arm and wrist appropriately
+     *
+     * @return whether we have reached the path's destination
+     */
+    public boolean followPathFive() {
+        double robotX = drivetrain.getRobotPose().toPoint().x;
+        if(robotX <= -12.0)
+            drivetrain.setTargetHeading(Math.PI);
+        boolean lowGear = robotX <= -23.0;
+        arm.armToPosition();
+        arm.wristToPosition();
+        return lerpPathPlanning.spline(0.0, true, lowGear);
     }
 }

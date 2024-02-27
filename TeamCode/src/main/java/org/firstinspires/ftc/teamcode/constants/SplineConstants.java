@@ -8,5 +8,5 @@ public interface SplineConstants {
     double SPLINE_P = 0.05;
 
     /** Auto Driving allowed error */
-    double SPLINE_ERROR = 0.25;
+    double SPLINE_ERROR = 0.4;
 }

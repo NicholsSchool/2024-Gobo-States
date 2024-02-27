@@ -28,5 +28,30 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
         boolean pathOneIsFinished = false;
         while(opModeIsActive() && !pathOneIsFinished)
             pathOneIsFinished = robot.followPathOne();
+
+        robot.prepForPurplePixelDrop();
+        boolean purpleFinished = false;
+        while(opModeIsActive() && !purpleFinished)
+            purpleFinished = robot.dropPurplePixel();
+
+        robot.prepForPathTwo();
+        boolean pathTwoIsFinished = false;
+        while(opModeIsActive() && !pathTwoIsFinished)
+            pathTwoIsFinished = robot.followPathTwo();
+
+        robot.prepForPathThree();
+        boolean pathThreeIsFinished = false;
+        while(opModeIsActive() && !pathThreeIsFinished)
+            pathThreeIsFinished = robot.followPathThree();
+
+        robot.prepForPathFour();
+        boolean pathFourIsFinished = false;
+        while(opModeIsActive() && !pathFourIsFinished)
+            pathFourIsFinished = robot.followPathFour();
+
+        robot.prepForPathFive();
+        boolean pathFiveIsFinished = false;
+        while(opModeIsActive() && !pathFiveIsFinished)
+            pathFiveIsFinished = robot.followPathFive();
     }
 }
