@@ -41,6 +41,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     private final TargetColumn targetColumn;
     private PropLocation propLocation;
 
+
     /**
      * @param hardwareMap the hardware map
      * @param x the initial x
@@ -55,7 +56,6 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
 
         //TODO: pot and purple location decide SCORING_Y
         final double SCORING_Y = -36.0;
-
         timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
         arm = new Arm(hardwareMap, ARM_AUTO_OFFSET, WRIST_AUTO_OFFSET);
@@ -173,6 +173,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     public boolean dropPurplePixel() {
         arm.armToPosition();
         arm.wristToPosition();
+
         return timer.time() >= 2.0;
         //TODO: purple pixel angles and drop
     }
