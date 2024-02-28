@@ -80,15 +80,14 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
                 new LerpPath(new Point(-28.0, -53.0), 0.0);
         LerpPath pathThree = isAudience ?
                 new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
-                new LerpPath(new Point(-48, SCORING_Y), Angles.PI_OVER_TWO);
+                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
 
         LerpPath pathFour = isAudience ?
                 new LerpPath(new Point(46.0, -11), -Math.PI / 4.0 + 0.35) :
-                new LerpPath(new Point(0.0, 0.0), 0.0);
+                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
 
-        LerpPath pathFive = isAudience ?
-                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO) :
-                new LerpPath(new Point(0.0, 0.0), 0.0);
+        LerpPath pathFive = 
+                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
 
         if(!isBlue) {
             flipRed(pathOne);
@@ -98,8 +97,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
             flipRed(pathFive);
         }
 
-        lerpPathPlanning = new LerpPathPlanning(drivetrain, new LerpPath[]{
-                pathOne, pathTwo, pathThree, pathFour, pathFive}, new Point(-48.0, SCORING_Y));
+        lerpPathPlanning = new LerpPathPlanning(drivetrain,
+                new LerpPath[]{pathOne, pathTwo, pathThree, pathFour, pathFive});
     }
 
     private void flipRed(LerpPath path) {
@@ -121,7 +120,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         PropLocation currentLocation = tensorFlowVision.getPropLocation();
         if(currentLocation != null)
             propLocation = currentLocation;
-        telemetry.addData("Prop Location", propLocation);
+        telemetry.addData("Prop Location", propLocation != null ? propLocation : "null");
         telemetry.update();
     }
 
@@ -160,7 +159,10 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * Prepares the robot to drop the purple pixel
      */
     public void prepForPurplePixelDrop() {
-
+        arm.setTargetArmPosition(0.0);
+        arm.setTargetWristPosition(1400);
+        timer.reset();
+        //TODO: purple pixel angles and drop
     }
 
     /**
@@ -169,7 +171,10 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * @return whether we are finished dropping the pixel
      */
     public boolean dropPurplePixel() {
-        return true;
+        arm.armToPosition();
+        arm.wristToPosition();
+        return timer.time() >= 2.0;
+        //TODO: purple pixel angles and drop
     }
 
     /**
@@ -177,7 +182,6 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public void prepForPathTwo() {
         lerpPathPlanning.loadNextPath();
-        arm.setTargetWristPosition(1400);
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
     }
 
@@ -243,11 +247,47 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathFive() {
         double robotX = drivetrain.getRobotPose().toPoint().x;
-        if(robotX <= -12.0)
+        if(robotX <= -12.0) {
             drivetrain.setTargetHeading(Math.PI);
-        boolean lowGear = robotX <= -23.0;
+            arm.setTargetArmPosition(SCORING_POSITION);
+            arm.virtualFourbar();
+        }
+        else {
+            arm.wristToPosition();
+        }
         arm.armToPosition();
-        arm.wristToPosition();
-        return lerpPathPlanning.spline(0.0, true, lowGear);
+        return lerpPathPlanning.spline(0.0, true, true);
+    }
+
+    /**
+     * Prepares the robot to place the yellow pixel
+     */
+    public void prepForYellowPixelPlace() {
+        //TODO: yellow pixel place
+    }
+
+    /**
+     * Places the Yellow Pixel in the correct column
+     *
+     * @return whether we are finished placing the pixel
+     */
+    public boolean placeYellowPixel() {
+        return true; //TODO: yellow pixel place
+    }
+
+    /**
+     * Prepares the robot for setting teleop configuration
+     */
+    public void prepTeleopConfig() {
+        //TODO: yellow pixel place
+    }
+
+    /**
+     * Sets up the Teleop starting configuration
+     *
+     * @return whether we are finished setting up teleop
+     */
+    public boolean configTeleop() {
+        return true; //TODO: wrist fully on the ground, arm down, auto align forwards
     }
 }

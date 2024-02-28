@@ -53,5 +53,15 @@ public class RedBackstageAuto extends LinearOpMode implements RobotConstants {
         boolean pathFiveIsFinished = false;
         while(opModeIsActive() && !pathFiveIsFinished)
             pathFiveIsFinished = robot.followPathFive();
+
+        robot.prepForYellowPixelPlace();
+        boolean yellowPixelPlaced = false;
+        while(opModeIsActive() && !yellowPixelPlaced)
+            yellowPixelPlaced = robot.placeYellowPixel();
+
+        robot.prepTeleopConfig();
+        boolean teleopConfigReady = false;
+        while(opModeIsActive() && !teleopConfigReady)
+            teleopConfigReady = robot.configTeleop();
     }
 }

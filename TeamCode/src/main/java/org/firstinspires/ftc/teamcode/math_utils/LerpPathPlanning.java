@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.math_utils;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.constants.SplineConstants;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 
@@ -8,7 +9,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
  */
 public class LerpPathPlanning implements SplineConstants {
     private final Drivetrain drivetrain;
-    private final Point finalDestination;
     private Point robotPosition;
     private final LerpPath[] paths;
     private LerpPath currentPath;
@@ -19,13 +19,11 @@ public class LerpPathPlanning implements SplineConstants {
      *
      * @param drivetrain the drivetrain
      * @param paths all the paths we will follow
-     * @param finalDestination the final destination
      */
-    public LerpPathPlanning(Drivetrain drivetrain, LerpPath[] paths, Point finalDestination) {
+    public LerpPathPlanning(Drivetrain drivetrain, LerpPath[] paths) {
         this.drivetrain = drivetrain;
-        this.finalDestination = finalDestination;
         this.paths = paths;
-        this.currentPath = paths[0];
+        this.currentPath = this.paths[0];
     }
 
     /**
@@ -64,7 +62,7 @@ public class LerpPathPlanning implements SplineConstants {
         return 1.0 - fromLine() / distanceOnLine();
     }
 
-    private double projectedDistance(){
+    private double projectedDistance() {
         double optimalX = optimalX();
         double optimalY = lineProjection(optimalX);
         double desiredT = desiredT();
@@ -90,8 +88,6 @@ public class LerpPathPlanning implements SplineConstants {
         drivetrain.update();
         robotPosition = drivetrain.getRobotPose().toPoint();
 
-        double error = robotPosition.distance(finalDestination);
-
         Vector driveVector;
         if(distanceOnLine() > projectedDistance()) {
             double optimalX = optimalX();
@@ -107,8 +103,10 @@ public class LerpPathPlanning implements SplineConstants {
                     optimalX() - robotPosition.x, lineProjection(optimalX()) - robotPosition.y);
         }
 
+        double error = robotPosition.distance(currentPath.waypoint);
+
         boolean isFinished;
-        if(error >= SPLINE_ERROR) {
+        if(error >= DESTINATION_ERROR) {
             driveVector.scaleMagnitude(SPLINE_P * error);
             isFinished = false;
         }

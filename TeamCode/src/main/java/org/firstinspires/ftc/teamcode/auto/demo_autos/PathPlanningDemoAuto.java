@@ -37,7 +37,7 @@ public class PathPlanningDemoAuto extends LinearOpMode implements RobotConstants
             Vector driveVector = parabolicPathPlanning.vectorToVertex(
                     robot, destination, true);
 
-            if(distance >= SPLINE_ERROR)
+            if(distance >= DESTINATION_ERROR)
                 driveVector.scaleMagnitude(SPLINE_P * distance);
             else
                 driveVector.zero();

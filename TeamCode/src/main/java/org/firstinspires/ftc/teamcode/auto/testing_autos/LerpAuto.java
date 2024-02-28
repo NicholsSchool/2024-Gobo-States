@@ -25,8 +25,7 @@ public class LerpAuto extends LinearOpMode implements RobotConstants {
         drivetrain.setFloat();
         LerpPathPlanning spline = new LerpPathPlanning(
                 drivetrain, new LerpPath[]{
-                        new LerpPath(new Point(48.0, 24.0), Angles.PI_OVER_TWO)},
-                        new Point(48.0, 24.0));
+                        new LerpPath(new Point(48.0, 24.0), Angles.PI_OVER_TWO)});
         Lights lights = new Lights(hardwareMap, IS_BLUE_ALLIANCE);
 
         waitForStart();

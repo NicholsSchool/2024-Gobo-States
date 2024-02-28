@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.math_utils;
 
+import org.firstinspires.ftc.teamcode.constants.SplineConstants;
+
 /**
  * A Lerp Path is defined by a Waypoint and a control point
  */
-public class LerpPath {
+public class LerpPath implements SplineConstants {
     /**
      * The target waypoint
      */
@@ -32,16 +34,16 @@ public class LerpPath {
      */
     public LerpPath(Point waypoint, double angle) {
         this.waypoint = waypoint;
+        this.angle = angle;
 
-        if(Math.abs(angle) == Angles.PI_OVER_TWO)
-            angle += 0.00001;
+        double absAngle = Math.abs(Angles.clipRadians(this.angle));
+        if(absAngle == Angles.PI_OVER_TWO || absAngle == Math.PI || absAngle == 0.0)
+            this.angle += 0.0001;
 
-        slope = Math.tan(angle);
+        slope = Math.tan(this.angle);
 
         slopePoint = new Point(
-                waypoint.x + Math.cos(angle),
-                waypoint.y + Math.sin(angle));
-
-        this.angle = angle;
+                waypoint.x + Math.cos(this.angle),
+                waypoint.y + Math.sin(this.angle));
     }
 }
