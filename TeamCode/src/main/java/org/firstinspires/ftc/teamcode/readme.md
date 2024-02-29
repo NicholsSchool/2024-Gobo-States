@@ -1,6 +1,8 @@
         CODE CHANGES:
-Test and Tune the new lerp spline                               [IN PROGRESS]
-Make autos                                                      [TODO]
+Fix Navx issue                                              [TODO]
+Make the autos not stop at each waypoint                    [TODO]
+Test all autos                                              [TODO]
+Scoring Y dependant on the purple and pot                   [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
 Fully Test Controllers                  [FINISHED]

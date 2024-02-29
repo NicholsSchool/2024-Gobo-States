@@ -44,24 +44,9 @@ public class BlueBackstageAuto extends LinearOpMode implements RobotConstants {
         while(opModeIsActive() && !pathThreeIsFinished)
             pathThreeIsFinished = robot.followPathThree();
 
-        robot.prepForPathFour();
-        boolean pathFourIsFinished = false;
-        while(opModeIsActive() && !pathFourIsFinished)
-            pathFourIsFinished = robot.followPathFour();
-
-        robot.prepForPathFive();
-        boolean pathFiveIsFinished = false;
-        while(opModeIsActive() && !pathFiveIsFinished)
-            pathFiveIsFinished = robot.followPathFive();
-
         robot.prepForYellowPixelPlace();
         boolean yellowPixelPlaced = false;
         while(opModeIsActive() && !yellowPixelPlaced)
             yellowPixelPlaced = robot.placeYellowPixel();
-
-        robot.prepTeleopConfig();
-        boolean teleopConfigReady = false;
-        while(opModeIsActive() && !teleopConfigReady)
-            teleopConfigReady = robot.configTeleop();
     }
 }

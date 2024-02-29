@@ -58,10 +58,5 @@ public class BlueAudienceAuto extends LinearOpMode implements RobotConstants {
         boolean yellowPixelPlaced = false;
         while(opModeIsActive() && !yellowPixelPlaced)
             yellowPixelPlaced = robot.placeYellowPixel();
-
-        robot.prepTeleopConfig();
-        boolean teleopConfigReady = false;
-        while(opModeIsActive() && !teleopConfigReady)
-            teleopConfigReady = robot.configTeleop();
     }
 }

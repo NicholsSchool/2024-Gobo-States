@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.LerpPath;
 import org.firstinspires.ftc.teamcode.math_utils.LerpPathPlanning;
 import org.firstinspires.ftc.teamcode.math_utils.Point;
+import org.firstinspires.ftc.teamcode.math_utils.Vector;
 import org.firstinspires.ftc.teamcode.subsystems.Arm;
 import org.firstinspires.ftc.teamcode.subsystems.Drivetrain;
 import org.firstinspires.ftc.teamcode.subsystems.Hand;
@@ -40,6 +41,9 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     private final Telemetry telemetry;
     private final TargetColumn targetColumn;
     private PropLocation propLocation;
+    private final boolean isBlueAlliance;
+    private double dropAngle;
+    private double placeAngle;
 
 
     /**
@@ -54,8 +58,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     public AutonomousRobot(HardwareMap hardwareMap, double x, double y, double angle,
                            boolean isBlue, boolean isAudience, Telemetry telemetry) {
 
-        //TODO: pot and purple location decide SCORING_Y
-        final double SCORING_Y = -36.0;
+        this.isBlueAlliance = isBlue;
+
         timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
         arm = new Arm(hardwareMap, ARM_AUTO_OFFSET, WRIST_AUTO_OFFSET);
@@ -71,6 +75,10 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         
         this.telemetry = telemetry;
 
+        //TODO: pot and purple location decide SCORING_Y
+        final double SCORING_X = -50.0;
+        final double SCORING_Y = -36.0;
+
         LerpPath pathOne = isAudience ?
                 new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
                 new LerpPath(new Point(-12.0, -36.0), Angles.PI_OVER_TWO);
@@ -80,14 +88,11 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
                 new LerpPath(new Point(-28.0, -53.0), 0.0);
         LerpPath pathThree = isAudience ?
                 new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
-                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
+                new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
 
-        LerpPath pathFour = isAudience ?
-                new LerpPath(new Point(46.0, -11), -Math.PI / 4.0 + 0.35) :
-                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
+        LerpPath pathFour = new LerpPath(new Point(46.0, -11.0), -Math.PI / 4.0 + 0.35);
 
-        LerpPath pathFive = 
-                new LerpPath(new Point(-48.0, SCORING_Y), Angles.PI_OVER_TWO);
+        LerpPath pathFive = new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
 
         if(!isBlue) {
             flipRed(pathOne);
@@ -125,20 +130,39 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     }
 
     /**
-     * Closes the Vision Portal
+     * Closes the Vision Portal and finalizes prop related data
      */
     public void closeVision() {
         tensorFlowVision.close();
 
         if(propLocation == null)
             propLocation = PropLocation.CENTER;
+
+        if(propLocation == PropLocation.LEFT) {
+            dropAngle = Angles.PI_OVER_TWO;
+            placeAngle = Math.PI;
+        }
+        else if(propLocation == PropLocation.CENTER) {
+            dropAngle = Math.PI / 6.0;
+            placeAngle = Angles.PI_OVER_TWO;
+        }
+        else {
+            dropAngle = Angles.PI_OVER_TWO;
+            placeAngle = 0.0;
+        }
+
+        if(!isBlueAlliance) {
+            dropAngle *= -1.0;
+            placeAngle += Math.PI;
+        }
     }
 
     /**
      * Prepares the robot to follow the first auto path
      */
     public void prepForPathOne() {
-        arm.setTargetArmPosition(1400.0);
+        drivetrain.setTargetHeading(dropAngle);
+        arm.setTargetArmPosition(1500.0);
         lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.VIOLET);
         timer.reset();
     }
@@ -150,8 +174,11 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathOne() {
         arm.armToPosition();
-        if(timer.time() > 0.5)
+        if(timer.time() > 0.75)
             arm.virtualFourbar();
+        else
+            arm.wristManual(0.0);
+
         return lerpPathPlanning.spline(0.0, true, true);
     }
 
@@ -159,10 +186,9 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * Prepares the robot to drop the purple pixel
      */
     public void prepForPurplePixelDrop() {
+        drivetrain.setTargetHeading(placeAngle);
         arm.setTargetArmPosition(0.0);
-        arm.setTargetWristPosition(1400);
         timer.reset();
-        //TODO: purple pixel angles and drop
     }
 
     /**
@@ -172,18 +198,38 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean dropPurplePixel() {
         arm.armToPosition();
-        arm.wristToPosition();
+        arm.virtualFourbar();
 
-        return timer.time() >= 2.0;
-        //TODO: purple pixel angles and drop
+        boolean autoAlign = timer.time() >= 1.0;
+
+        drivetrain.drive(new Vector(0.0, 0.0), 0.0, autoAlign, true);
+        if(Math.abs(drivetrain.getRobotPose().angle - placeAngle) <= 0.0174532) {
+            hand.toggleRight();
+            timer.reset();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Pauses the course of the auto. Reset the timer before executing.
+     *
+     * @param seconds the time duration
+     *
+     * @return if the duration is over
+     */
+    public boolean wait(double seconds) {
+        return timer.time() >= seconds;
     }
 
     /**
      * Prepares the robot to follow the second auto path
      */
     public void prepForPathTwo() {
+        hand.toggleRight();
         lerpPathPlanning.loadNextPath();
-        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_WHITE);
+        arm.setTargetWristPosition(1400);
+        lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.STROBE_GOLD);
     }
 
     /**
@@ -247,8 +293,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * @return whether we have reached the path's destination
      */
     public boolean followPathFive() {
-        double robotX = drivetrain.getRobotPose().toPoint().x;
-        if(robotX <= -12.0) {
+        if(drivetrain.getRobotPose().toPoint().x <= -12.0) {
             drivetrain.setTargetHeading(Math.PI);
             arm.setTargetArmPosition(SCORING_POSITION);
             arm.virtualFourbar();
@@ -264,7 +309,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * Prepares the robot to place the yellow pixel
      */
     public void prepForYellowPixelPlace() {
-        //TODO: yellow pixel place
+        hand.toggleLeft();
+        timer.reset();
     }
 
     /**
@@ -273,22 +319,19 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * @return whether we are finished placing the pixel
      */
     public boolean placeYellowPixel() {
-        return true; //TODO: yellow pixel place
-    }
+        double targetAngle = isBlueAlliance ? Angles.PI_OVER_TWO : Angles.NEGATIVE_PI_OVER_TWO;
 
-    /**
-     * Prepares the robot for setting teleop configuration
-     */
-    public void prepTeleopConfig() {
-        //TODO: yellow pixel place
-    }
+        if(timer.time() >= 1.0) {
+            drivetrain.setTargetHeading(targetAngle);
+            arm.setTargetArmPosition(0.0);
+        }
+        if(timer.time() >= 2.0)
+            arm.setTargetWristPosition(-50.0);
 
-    /**
-     * Sets up the Teleop starting configuration
-     *
-     * @return whether we are finished setting up teleop
-     */
-    public boolean configTeleop() {
-        return true; //TODO: wrist fully on the ground, arm down, auto align forwards
+        arm.armToPosition();
+        arm.wristToPosition();
+        drivetrain.drive(new Vector(0.0, 0.0), 0.0, true, true);
+
+        return Math.abs(drivetrain.getRobotPose().angle - targetAngle) <= 0.0174532;
     }
 }
