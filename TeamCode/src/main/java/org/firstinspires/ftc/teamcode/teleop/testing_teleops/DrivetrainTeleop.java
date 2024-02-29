@@ -40,7 +40,7 @@ public class DrivetrainTeleop extends OpMode implements RobotConstants {
      */
     @Override
     public void init_loop() {
-
+        telemetryNavx();
     }
 
     /**
@@ -74,10 +74,23 @@ public class DrivetrainTeleop extends OpMode implements RobotConstants {
                 controller.rightStick.x.hasBeenZero(),
                 controller.leftTrigger.value() <= 0.0);
 
+        telemetryNavx();
+
         telemetry.addData("pose", drivetrain.getRobotPose());
 
         telemetry.addData("loop time", loopTime.time());
         loopTime.reset();
+        telemetry.update();
+    }
+
+    private void telemetryNavx() {
+        boolean[] navxInfo = drivetrain.getNavxInfo();
+        double[] navxAves = drivetrain.getNavxAxes();
+        telemetry.addData("is connected", navxInfo[0]);
+        telemetry.addData("is calibrating", navxInfo[1]);
+        telemetry.addData("pitch", navxAves[0]);
+        telemetry.addData("roll", navxAves[1]);
+        telemetry.addData("yaw", navxAves[2]);
         telemetry.update();
     }
 

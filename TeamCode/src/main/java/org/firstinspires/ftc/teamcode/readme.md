@@ -1,8 +1,8 @@
         CODE CHANGES:
-Fix Navx issue                                              [TODO]
-Make the autos not stop at each waypoint                    [TODO]
-Test all autos                                              [TODO]
-Scoring Y dependant on the purple and pot                   [TODO]
+Scoring y               [TODO]
+Audience side           [TODO]
+Test EVERYTHING         [TODO]
+Continuous?             [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
 Fully Test Controllers                  [FINISHED]

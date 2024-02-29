@@ -34,6 +34,10 @@ public class BlueAudienceAuto extends LinearOpMode implements RobotConstants {
         while(opModeIsActive() && !purpleFinished)
             purpleFinished = robot.dropPurplePixel();
 
+        boolean waitDone = false;
+        while(opModeIsActive() && !waitDone)
+            waitDone = robot.wait(1.0);
+
         robot.prepForPathTwo();
         boolean pathTwoIsFinished = false;
         while(opModeIsActive() && !pathTwoIsFinished)

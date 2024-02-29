@@ -227,4 +227,22 @@ public class Drivetrain implements DrivetrainConstants {
     public RobotPose getRobotPose() {
         return pose;
     }
+
+    /**
+     * Whether tne navx is connected and whether it is calibrating
+     *
+     * @return the information as a boolean array
+     */
+    public boolean[] getNavxInfo() {
+        return new boolean[]{navx.isConnected(), navx.isCalibrating()};
+    }
+
+    /**
+     * The pitch, roll, and yaw of the navx in degrees
+     *
+     * @return the information in degrees as a double array
+     */
+    public double[] getNavxAxes() {
+        return new double[]{navx.getPitch(), navx.getRoll(), navx.getYaw()};
+    }
 }
