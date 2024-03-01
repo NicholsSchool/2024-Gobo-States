@@ -36,7 +36,7 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
 
         boolean waitDone = false;
         while(opModeIsActive() && !waitDone)
-            waitDone = robot.wait(1.0);
+            waitDone = robot.waitAfterPurple();
 
         robot.prepForPathTwo();
         boolean pathTwoIsFinished = false;
@@ -57,6 +57,11 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
         boolean pathFiveIsFinished = false;
         while(opModeIsActive() && !pathFiveIsFinished)
             pathFiveIsFinished = robot.followPathFive();
+
+        robot.prepForPathSix();
+        boolean pathSixIsFinished = false;
+        while(opModeIsActive() && !pathSixIsFinished)
+            pathSixIsFinished = robot.followPathSix();
 
         robot.prepForYellowPixelPlace();
         boolean yellowPixelPlaced = false;

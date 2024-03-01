@@ -36,7 +36,7 @@ public class BlueBackstageAuto extends LinearOpMode implements RobotConstants {
 
         boolean waitDone = false;
         while(opModeIsActive() && !waitDone)
-            waitDone = robot.wait(1.0);
+            waitDone = robot.waitAfterPurple();
 
         robot.prepForPathTwo();
         boolean pathTwoIsFinished = false;
@@ -47,6 +47,21 @@ public class BlueBackstageAuto extends LinearOpMode implements RobotConstants {
         boolean pathThreeIsFinished = false;
         while(opModeIsActive() && !pathThreeIsFinished)
             pathThreeIsFinished = robot.followPathThree();
+
+        robot.prepForPathFour();
+        boolean pathFourIsFinished = false;
+        while(opModeIsActive() && !pathFourIsFinished)
+            pathFourIsFinished = robot.followPathFour();
+
+        robot.prepForPathFive();
+        boolean pathFiveIsFinished = false;
+        while(opModeIsActive() && !pathFiveIsFinished)
+            pathFiveIsFinished = robot.followPathFive();
+
+        robot.prepForPathSix();
+        boolean pathSixIsFinished = false;
+        while(opModeIsActive() && !pathSixIsFinished)
+            pathSixIsFinished = robot.followPathSix();
 
         robot.prepForYellowPixelPlace();
         boolean yellowPixelPlaced = false;

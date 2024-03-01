@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.constants.ArmConstants;
+import org.firstinspires.ftc.teamcode.constants.DrivetrainConstants;
 import org.firstinspires.ftc.teamcode.constants.SplineConstants;
 import org.firstinspires.ftc.teamcode.math_utils.Angles;
 import org.firstinspires.ftc.teamcode.math_utils.LerpPath;
@@ -23,7 +24,7 @@ import org.firstinspires.ftc.teamcode.subsystems.TensorFlowVision.PropLocation;
 /**
  * Robot Container for the Autonomous Period
  */
-public class AutonomousRobot implements ArmConstants, SplineConstants {
+public class AutonomousRobot implements ArmConstants, SplineConstants, DrivetrainConstants {
     /**
      * The two target columns for autonomous
      */
@@ -37,11 +38,12 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     private final Hand hand;
     private final Lights lights;
     private final TensorFlowVision tensorFlowVision;
-    private final LerpPathPlanning lerpPathPlanning;
+    private LerpPathPlanning lerpPathPlanning;
     private final Telemetry telemetry;
     private final TargetColumn targetColumn;
     private PropLocation propLocation;
     private final boolean isBlueAlliance;
+    private final boolean isAudience;
     private double dropAngle;
     private double placeAngle;
 
@@ -59,6 +61,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
                            boolean isBlue, boolean isAudience, Telemetry telemetry) {
 
         this.isBlueAlliance = isBlue;
+        this.isAudience = isAudience;
 
         timer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
@@ -74,39 +77,6 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
                 TargetColumn.LEFT : TargetColumn.RIGHT;
         
         this.telemetry = telemetry;
-
-        //TODO: pot and purple location decide SCORING_Y
-        final double SCORING_X = -50.0;
-        final double SCORING_Y = -36.0;
-
-        LerpPath pathOne = isAudience ?
-                new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
-                new LerpPath(new Point(-12.0, -36.0), Angles.PI_OVER_TWO);
-
-        LerpPath pathTwo = isAudience ?
-                new LerpPath(new Point(48.0, -48.0), 0.0) :
-                new LerpPath(new Point(-28.0, -53.0), 0.0);
-        LerpPath pathThree = isAudience ?
-                new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
-                new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
-
-        LerpPath pathFour = new LerpPath(new Point(46.0, -11.0), -Math.PI / 4.0 + 0.35);
-
-        LerpPath pathFive = new LerpPath(new Point(-12.0, -11.0), 0.0);
-
-        LerpPath pathSix = new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
-
-        if(!isBlue) {
-            flipRed(pathOne);
-            flipRed(pathTwo);
-            flipRed(pathThree);
-            flipRed(pathFour);
-            flipRed(pathFive);
-            flipRed(pathSix);
-        }
-
-        lerpPathPlanning = new LerpPathPlanning(drivetrain,
-                new LerpPath[]{pathOne, pathTwo, pathThree, pathFour, pathFive, pathSix});
     }
 
     private void flipRed(LerpPath path) {
@@ -144,7 +114,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
 
         if(propLocation == PropLocation.LEFT) {
             dropAngle = Angles.PI_OVER_TWO;
-            placeAngle = Math.PI;
+            placeAngle = Math.PI * 8.0 / 9.0;
         }
         else if(propLocation == PropLocation.CENTER) {
             dropAngle = Math.PI / 6.0;
@@ -160,6 +130,51 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
             placeAngle += Math.PI;
         }
 
+        double SCORING_Y = isBlueAlliance ? -34.0 : -37.0;
+        if(propLocation == PropLocation.LEFT)
+            SCORING_Y -= isBlueAlliance ? 6.0 : -6.0;
+        else if(propLocation == PropLocation.RIGHT)
+            SCORING_Y += isBlueAlliance ? 6.0 : -6.0;
+
+        if(targetColumn == TargetColumn.LEFT)
+            SCORING_Y += isBlueAlliance ? -1.5 : 1.5;
+        else if(targetColumn == TargetColumn.RIGHT)
+            SCORING_Y += isBlueAlliance ? 1.5 : -1.5;
+
+        final double SCORING_X = -50.0;
+
+        LerpPath pathOne = isAudience ?
+                new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(-12.0, -36.0), Angles.PI_OVER_TWO);
+
+        LerpPath pathTwo = isAudience ?
+                new LerpPath(new Point(48.0, -48.0), 0.0) :
+                new LerpPath(new Point(-28.0, -53.0), 0.0);
+        LerpPath pathThree = isAudience ?
+                new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
+
+        LerpPath pathFour = isAudience ?
+                new LerpPath(new Point(46.0, -11.0), -Math.PI / 4.0 + 0.35) :
+                new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
+
+        LerpPath pathFive = isAudience ?
+                new LerpPath(new Point(-12.0, -11.0), 0.0) :
+                new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
+
+        LerpPath pathSix = new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
+
+        if(!isBlueAlliance) {
+            flipRed(pathOne);
+            flipRed(pathTwo);
+            flipRed(pathThree);
+            flipRed(pathFour);
+            flipRed(pathFive);
+            flipRed(pathSix);
+        }
+
+        lerpPathPlanning = new LerpPathPlanning(drivetrain,
+                new LerpPath[]{pathOne, pathTwo, pathThree, pathFour, pathFive, pathSix});
     }
 
     /**
@@ -210,7 +225,9 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         boolean autoAlign = timer.time() >= 1.0;
 
         drivetrain.drive(new Vector(0.0, 0.0), 0.0, autoAlign, true);
-        if(Math.abs(drivetrain.getRobotPose().angle - placeAngle) <= 0.0174532) {
+
+        if(Math.abs(Angles.clipRadians(drivetrain.getRobotPose().angle - placeAngle))
+                <= AUTO_ALIGN_ERROR) {
             hand.toggleRight();
             arm.setTargetWristPosition(1400.0);
             timer.reset();
@@ -260,6 +277,10 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      * Prepares the robot to follow the third auto path
      */
     public void prepForPathThree() {
+        if(!isAudience) {
+            drivetrain.setTargetHeading(Math.PI);
+            arm.setTargetArmPosition(SCORING_POSITION - 400.0);
+        }
         lerpPathPlanning.loadNextPath();
     }
 
@@ -270,7 +291,12 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathThree() {
         arm.armToPosition();
-        arm.wristToPosition();
+
+        if(isAudience)
+            arm.wristToPosition();
+        else
+            arm.virtualFourbar();
+
         return lerpPathPlanning.spline(0.0, true, true);
     }
 
@@ -288,7 +314,12 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathFour() {
         arm.armToPosition();
-        arm.wristToPosition();
+
+        if(isAudience)
+            arm.wristToPosition();
+        else
+            arm.virtualFourbar();
+
         return lerpPathPlanning.spline(0.0, true, true);
     }
 
@@ -307,7 +338,12 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
      */
     public boolean followPathFive() {
         arm.wristToPosition();
-        arm.armToPosition();
+
+        if(isAudience)
+            arm.wristToPosition();
+        else
+            arm.virtualFourbar();
+
         return lerpPathPlanning.spline(0.0, true, true);
     }
 
@@ -317,7 +353,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     public void prepForPathSix() {
         lerpPathPlanning.loadNextPath();
         drivetrain.setTargetHeading(Math.PI);
-        arm.setTargetArmPosition(SCORING_POSITION - 200.0);
+        arm.setTargetArmPosition(SCORING_POSITION - 400.0);
+        timer.reset();
     }
 
     /**
@@ -328,7 +365,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
     public boolean followPathSix() {
         arm.virtualFourbar();
         arm.armToPosition();
-        return lerpPathPlanning.spline(0.0, true, true);
+        boolean autoAlign = timer.time() >= 0.25;
+        return lerpPathPlanning.spline(-1.0, autoAlign, true);
     }
 
     /**
@@ -349,13 +387,18 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
         double targetAngle = isBlueAlliance ? Angles.PI_OVER_TWO : Angles.NEGATIVE_PI_OVER_TWO;
 
         double time = timer.time();
-        if(time >= 0.5) {
+        if(time <= 0.5) {
+            drivetrain.drive(new Vector(1.0, 0.0), 0.0, true, true);
+        }
+        else
+            drivetrain.drive(new Vector(0.0, 0.0), 0.0, true, true);
+
+        if(time >= 1.0) {
+            arm.setTargetArmPosition(0.0);
             drivetrain.setTargetHeading(targetAngle);
         }
-        if(time >= 1.5)
-            arm.setTargetArmPosition(0.0);
 
-        if(time >= 2.0) {
+        if(time >= 1.5) {
             arm.setTargetWristPosition(-50.0);
             arm.wristToPosition();
         }
@@ -363,8 +406,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants {
             arm.wristManual(0.0);
 
         arm.armToPosition();
-        drivetrain.drive(new Vector(0.0, 0.0), 0.0, true, true);
 
-        return Math.abs(drivetrain.getRobotPose().angle - targetAngle) <= 0.0174532;
+        return Math.abs(Angles.clipRadians(drivetrain.getRobotPose().angle - targetAngle))
+                <= AUTO_ALIGN_ERROR;
     }
 }

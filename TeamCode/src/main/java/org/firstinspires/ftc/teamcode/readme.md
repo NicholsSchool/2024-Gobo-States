@@ -1,8 +1,9 @@
         CODE CHANGES:
-Scoring y               [TODO]
-Audience side           [TODO]
+Not drop yellow pixel           [TODO]
+Yelow pixel stay on board          [TODO]
+Test no line cross          [TODO]
 Test EVERYTHING         [TODO]
-Continuous?             [TODO]
+Continuous? or high gear     [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
 Fully Test Controllers                  [FINISHED]
