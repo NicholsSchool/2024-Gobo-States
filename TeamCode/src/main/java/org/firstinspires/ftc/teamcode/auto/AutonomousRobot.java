@@ -44,8 +44,10 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     private PropLocation propLocation;
     private final boolean isBlueAlliance;
     private final boolean isAudience;
+    private Point scoringPoint;
     private double dropAngle;
     private double placeAngle;
+    private boolean alreadyClosed;
 
 
     /**
@@ -130,9 +132,9 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
             placeAngle += Math.PI;
         }
 
-        double SCORING_Y = isBlueAlliance ? -34.0 : -37.0;
+        double SCORING_Y = isBlueAlliance ? -34.0 : -36.0; //TODO: offset for blue
         if(propLocation == PropLocation.LEFT)
-            SCORING_Y -= isBlueAlliance ? 6.0 : -6.0;
+            SCORING_Y += isBlueAlliance ? -6.0 : 6.0;
         else if(propLocation == PropLocation.RIGHT)
             SCORING_Y += isBlueAlliance ? 6.0 : -6.0;
 
@@ -141,7 +143,11 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
         else if(targetColumn == TargetColumn.RIGHT)
             SCORING_Y += isBlueAlliance ? 1.5 : -1.5;
 
-        final double SCORING_X = -50.0;
+        final double SCORING_X = -48.0;
+
+        scoringPoint = new Point(SCORING_X - 0.5, isBlueAlliance ? SCORING_Y : -SCORING_Y);
+        telemetry.addData("point", scoringPoint);
+        telemetry.update();
 
         LerpPath pathOne = isAudience ?
                 new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
@@ -151,7 +157,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
                 new LerpPath(new Point(48.0, -48.0), 0.0) :
                 new LerpPath(new Point(-28.0, -53.0), 0.0);
         LerpPath pathThree = isAudience ?
-                new LerpPath(new Point(60.0, -36.0), Angles.PI_OVER_TWO) :
+                new LerpPath(new Point(58.0, -36.0), Angles.PI_OVER_TWO) :
                 new LerpPath(new Point(SCORING_X, SCORING_Y), Angles.PI_OVER_TWO);
 
         LerpPath pathFour = isAudience ?
@@ -209,6 +215,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public void prepForPurplePixelDrop() {
         drivetrain.setTargetHeading(placeAngle);
         arm.setTargetArmPosition(0.0);
+        arm.setTargetWristPosition(-50.0);
         timer.reset();
     }
 
@@ -220,7 +227,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public boolean dropPurplePixel() {
         drivetrain.update();
         arm.armToPosition();
-        arm.virtualFourbar();
+        arm.wristToPosition();
 
         boolean autoAlign = timer.time() >= 1.0;
 
@@ -229,7 +236,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
         if(Math.abs(Angles.clipRadians(drivetrain.getRobotPose().angle - placeAngle))
                 <= AUTO_ALIGN_ERROR) {
             hand.toggleRight();
-            arm.setTargetWristPosition(1400.0);
+            hand.toggleLeft();
+            arm.setTargetWristPosition(-50.0);
             timer.reset();
             return true;
         }
@@ -242,7 +250,12 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
      * @return if the duration is over
      */
     public boolean waitAfterPurple() {
-        if(timer.time() <= 0.25)
+        if(timer.time() >= 0.25 && !alreadyClosed) {
+            alreadyClosed = true;
+            hand.toggleLeft();
+        }
+
+        if(timer.time() >= 0.6)
             arm.virtualFourbar();
         else
             arm.wristToPosition();
@@ -255,7 +268,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
      * Prepares the robot to follow the second auto path
      */
     public void prepForPathTwo() {
-        drivetrain.setTargetHeading(isBlueAlliance ? Angles.NEGATIVE_PI_OVER_TWO : Angles.PI_OVER_TWO);
+        drivetrain.setTargetHeading(isBlueAlliance ?
+            -Math.PI / 4.0 : Math.PI / 4.0);
         hand.toggleRight();
         lerpPathPlanning.loadNextPath();
         arm.setTargetWristPosition(1400);
@@ -279,7 +293,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public void prepForPathThree() {
         if(!isAudience) {
             drivetrain.setTargetHeading(Math.PI);
-            arm.setTargetArmPosition(SCORING_POSITION - 400.0);
+            arm.setTargetArmPosition(SCORING_POSITION - 600.0);
         }
         lerpPathPlanning.loadNextPath();
     }
@@ -353,7 +367,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public void prepForPathSix() {
         lerpPathPlanning.loadNextPath();
         drivetrain.setTargetHeading(Math.PI);
-        arm.setTargetArmPosition(SCORING_POSITION - 400.0);
+        arm.setTargetArmPosition(SCORING_POSITION - 600.0);
         timer.reset();
     }
 
@@ -366,7 +380,20 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
         arm.virtualFourbar();
         arm.armToPosition();
         boolean autoAlign = timer.time() >= 0.25;
-        return lerpPathPlanning.spline(-1.0, autoAlign, true);
+        return lerpPathPlanning.spline(isBlueAlliance ? 1.0 : -1.0, autoAlign, true);
+    }
+
+    public void prepForNudge() {
+        timer.reset();
+    }
+
+    public boolean nudgeForward() {
+        Vector driveVector = drivetrain.getRobotPose().toPoint().slope(scoringPoint);
+
+        driveVector.scaleMagnitude(1.0);
+
+        drivetrain.drive(driveVector, 0.0, true, true);
+        return timer.time() >= 0.25;
     }
 
     /**
@@ -387,8 +414,8 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
         double targetAngle = isBlueAlliance ? Angles.PI_OVER_TWO : Angles.NEGATIVE_PI_OVER_TWO;
 
         double time = timer.time();
-        if(time <= 0.5) {
-            drivetrain.drive(new Vector(1.0, 0.0), 0.0, true, true);
+        if(time <= 0.4) {
+            drivetrain.drive(new Vector(1.0, 0.0), 0.0, true, false);
         }
         else
             drivetrain.drive(new Vector(0.0, 0.0), 0.0, true, true);

@@ -1,7 +1,4 @@
         CODE CHANGES:
-Not drop yellow pixel           [TODO]
-Yelow pixel stay on board          [TODO]
-Test no line cross          [TODO]
 Test EVERYTHING         [TODO]
 Continuous? or high gear     [TODO]
 

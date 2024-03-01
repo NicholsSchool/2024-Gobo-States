@@ -63,6 +63,12 @@ public class RedAudienceAuto extends LinearOpMode implements RobotConstants {
         while(opModeIsActive() && !pathSixIsFinished)
             pathSixIsFinished = robot.followPathSix();
 
+        robot.prepForNudge();
+        boolean nudgeDone = false;
+        while(opModeIsActive() && !nudgeDone)
+            nudgeDone = robot.nudgeForward();
+
+
         robot.prepForYellowPixelPlace();
         boolean yellowPixelPlaced = false;
         while(opModeIsActive() && !yellowPixelPlaced)
