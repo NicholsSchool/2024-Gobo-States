@@ -132,22 +132,18 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
             placeAngle += Math.PI;
         }
 
-        double SCORING_Y = isBlueAlliance ? -34.0 : -36.0; //TODO: offset for blue
+        double SCORING_Y = -35.5;
         if(propLocation == PropLocation.LEFT)
             SCORING_Y += isBlueAlliance ? -6.0 : 6.0;
         else if(propLocation == PropLocation.RIGHT)
             SCORING_Y += isBlueAlliance ? 6.0 : -6.0;
 
         if(targetColumn == TargetColumn.LEFT)
-            SCORING_Y += isBlueAlliance ? -1.5 : 1.5;
+            SCORING_Y += isBlueAlliance ? -1.75 : 1.75;
         else if(targetColumn == TargetColumn.RIGHT)
-            SCORING_Y += isBlueAlliance ? 1.5 : -1.5;
+            SCORING_Y += isBlueAlliance ? 1.75 : -1.75;
 
         final double SCORING_X = -48.0;
-
-        scoringPoint = new Point(SCORING_X - 0.5, isBlueAlliance ? SCORING_Y : -SCORING_Y);
-        telemetry.addData("point", scoringPoint);
-        telemetry.update();
 
         LerpPath pathOne = isAudience ?
                 new LerpPath(new Point(36.0, -36.0), Angles.PI_OVER_TWO) :
@@ -293,7 +289,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public void prepForPathThree() {
         if(!isAudience) {
             drivetrain.setTargetHeading(Math.PI);
-            arm.setTargetArmPosition(SCORING_POSITION - 600.0);
+            arm.setTargetArmPosition(SCORING_POSITION - 550.0);
         }
         lerpPathPlanning.loadNextPath();
     }
@@ -367,7 +363,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     public void prepForPathSix() {
         lerpPathPlanning.loadNextPath();
         drivetrain.setTargetHeading(Math.PI);
-        arm.setTargetArmPosition(SCORING_POSITION - 600.0);
+        arm.setTargetArmPosition(SCORING_POSITION - 550.0);
         timer.reset();
     }
 
@@ -384,6 +380,7 @@ public class AutonomousRobot implements ArmConstants, SplineConstants, Drivetrai
     }
 
     public void prepForNudge() {
+        scoringPoint = new Point(-100.0, drivetrain.getRobotPose().y);
         timer.reset();
     }
 
