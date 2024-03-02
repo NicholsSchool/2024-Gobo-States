@@ -1,6 +1,5 @@
         CODE CHANGES:
 Test EVERYTHING         [TODO]
-Continuous? or high gear     [TODO]
 
             SUBSYSTEMS AND UTILITY TESTING:
 Fully Test Controllers                  [FINISHED]
